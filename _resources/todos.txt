@@ -1,0 +1,13 @@
+Tentative TODOs:
+
+- Learn how to build a CS188's crawler-app-like interface in WxWidgets
+- Learn how to work with pixels in WxWidgets
+  a) Use WxWidgets
+  b) Integrate SDL2 into WxWidgets GUI
+- Build GUI
+  - Create top and bottom panels
+  - Add two buttons: ["run", "stop"] + see other buttons needed
+- Create graphicks:
+  - Create crawler's body
+    - Create a function Body::walk() where the crawler walks automatically; for reference: https://github.com/rwwaskk/CS188-Berkeley/blob/master/reinforcement/crawler.py
+- 
