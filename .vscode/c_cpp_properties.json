@@ -6,13 +6,14 @@
                 "${workspaceFolder}/src/**",
                 "/usr/local/include/wx-3.1/**",
                 "/usr/local/lib/wx/include/osx_cocoa-unicode-3.1",
-                "/usr/local/lib/wx/**"
+                "/usr/local/lib/wx/**",
+                "/usr/local/include/wx-3.1"
             ],
             "defines": [
                 "WX_PRECOMP",
                 "__WXOSX_COCOA__",
                 "_FILE_OFFSET_BITS=64",
-                "__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=1"                
+                "__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=1"
             ],
             "forcedInclude": [],
             "macFrameworkPath": [],
