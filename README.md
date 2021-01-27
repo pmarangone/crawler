@@ -1,4 +1,6 @@
-# Crawler – Custom Homemade Replica of Berkeley's CS188 Reinforcement Learning Project
+# Crawler
+
+Custom homemade replica of Berkeley's CS188 class.
 
 ## Tentative TODOs
 
