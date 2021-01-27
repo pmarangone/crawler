@@ -7,7 +7,7 @@ Tentative TODOs:
 - Build GUI
   - Create top and bottom panels
   - Add two buttons: ["run", "stop"] + see other buttons needed
-- Create graphicks:
+- Create graphics:
   - Create crawler's body
     - Create a function Body::walk() where the crawler walks automatically; for reference: https://github.com/rwwaskk/CS188-Berkeley/blob/master/reinforcement/crawler.py
 - 

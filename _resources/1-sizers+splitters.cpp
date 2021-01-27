@@ -5,8 +5,6 @@
 
 // GUI.h
 
-// https://docs.wxwidgets.org/3.0/overview_helloworld.html
-
 // For compilers that support precompilation, includes "wx/wx.h"; this global header already includes wx/wx.h
 #include <wx/wxprec.h>
 #include <wx/listctrl.h>   // sizers 2
