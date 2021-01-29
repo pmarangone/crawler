@@ -30,11 +30,23 @@ class MyFrame : public wxFrame {
   void OnAbout(wxCommandEvent &event);
 	void OnClickBtn1(wxCommandEvent &event);	// btn1 mouse click handler
 	void OnClickBtn2(wxCommandEvent &event);	// btn1 mouse click handler
-	void OnClick(wxCommandEvent &event);	// mouse click handler
+	void OnClick(wxCommandEvent &);	// mouse click handler; event arg can be skipped
+  void OnSize(wxSizeEvent &);
   wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
 };
 
-// Unique menu command identifiers
+// Custom panel class serving as a button's parent
+class MyPanel : public wxPanel {
+ public:
+  void OnClickDynamic(wxCommandEvent &event);  // made public to be accessible from within MyFrame class (for demo)
+  MyPanel(wxWindow *parent); 
+ private:
+  void OnClick(wxCommandEvent &event);
+  void OnSize(wxSizeEvent &);  
+  wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
+};
+
+// Unique menu command identifiers (regardless of the class)
 enum {
   ID_Hello = wxID_LAST + 1,
 	ID_BTN1,
@@ -43,7 +55,7 @@ enum {
   // No need to implement "About" and "Exit"
 };
 
-// Event table where events are routed to their respective handler functions in MyFrame class
+// Custom vent table for MyFrame class where events are routed to their respective handler functions
 // clang-format off
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
   EVT_MENU(ID_Hello,   MyFrame::OnHello)
@@ -52,17 +64,17 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_BUTTON(ID_BTN1, MyFrame::OnClickBtn1)	// btn1 mouse click
 	EVT_BUTTON(ID_BTN2, MyFrame::OnClickBtn2)	// btn2 mouse click
 	EVT_BUTTON(wxID_ANY, MyFrame::OnClick)	// wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
+  EVT_SIZE(MyFrame::OnSize)
 wxEND_EVENT_TABLE()
 ; // clang-format on
 
-// Custom panel class serving as a button's parent
-class MyPanel : public wxPanel {
- public:
-  MyPanel(wxWindow *parent); 
- private:
-  void OnClick(wxCommandEvent &event);
-  wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
-};
+// Custom event table for the MyPanel class
+// clang-format off
+wxBEGIN_EVENT_TABLE(MyPanel, wxPanel)
+  EVT_BUTTON(wxID_ANY, MyPanel::OnClick)  // standard event handler goes last (overriding)
+wxEND_EVENT_TABLE()
+; // clang-format on
+
 
 
 // GUI.cpp
@@ -77,7 +89,7 @@ bool MyApp::OnInit() {
   return true;
 }
 
-// Main window constructor
+// Main window
 MyFrame::MyFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(NULL, wxID_ANY, title, pos, size) {
   // Setting menu items & status bar; list of standard IDs: https://docs.wxwidgets.org/3.0/page_stockitems.html
   wxMenu *menuFile = new wxMenu;
@@ -95,20 +107,44 @@ MyFrame::MyFrame(const wxString &title, const wxPoint &pos, const wxSize &size) 
   CreateStatusBar();
   SetStatusText("Reinforcement Learning: Crawler CS188");
 
+  // Buttons, sizer and panels
 
-  wxButton *btn1 = new wxButton(this, ID_BTN1, "OK");	// ID number generated is negative
-  wxButton *btn2 = new wxButton(this, ID_BTN2, "Click me!");
-  wxButton *btn3 = new wxButton(this, ID_BTN3, "Click me!");
+  wxButton *btn1 = new wxButton(this, ID_BTN1, "Button 1");	// ID number generated is negative
+  wxButton *btn2 = new wxButton(this, ID_BTN2, "Button 2");
+  wxButton *btn3 = new wxButton(this, ID_BTN3, "Standard Button");
 
-  wxBoxSizer *s1 = new wxBoxSizer(wxHORIZONTAL);
-  s1->Add(btn1, 0, wxCENTER | wxALL, 50);
-  s1->Add(btn2, 0, wxCENTER | wxALL, 50);
-  s1->Add(btn3, 0, wxCENTER | wxALL, 50);
+  wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
+  sizer->Add(btn1, 0, wxCENTER | wxALL, 25);
+  sizer->Add(btn2, 0, wxCENTER | wxALL, 25);
+  sizer->Add(btn3, 0, wxCENTER | wxALL, 25);
 
-  this->SetSizerAndFit(s1);
+  MyPanel *panel = new MyPanel(this);
+  wxButton *btn4 = new wxButton(panel, wxID_ANY, "Panel button");
+  wxButton *btn5 = new wxButton(panel, wxID_ANY, "Dynamic event button");
+  wxButton *btn6 = new wxButton(panel, wxID_ANY, "Dynamic lambda button");
+
+  wxBoxSizer *panelSizer = new wxBoxSizer(wxHORIZONTAL);
+  panelSizer->Add(btn4, 1, wxCENTER | wxALL, 25);
+  panelSizer->Add(btn5, 1, wxCENTER | wxALL, 25);
+  panelSizer->Add(btn6, 1, wxCENTER | wxALL, 25);
+  panel->SetSizerAndFit(panelSizer);
+
+  sizer->Add(panel, 1, wxEXPAND);
+  this->SetSizerAndFit(sizer);
+
+  // Dynamic event handling (no event table)
+  btn5->Bind(wxEVT_BUTTON, &MyPanel::OnClickDynamic, panel);
+  btn6->Bind(wxEVT_BUTTON, [](wxCommandEvent &event){
+    std::cout << "PANEL dynamic LAMBDA button clicked. ID: " << event.GetId() << std::endl;
+  });
 }
 
-// Event handlers
+// MyPanel constructor
+MyPanel::MyPanel(wxWindow *parent) : wxPanel(parent) {
+  this->SetBackgroundColour(wxColour(200, 100, 100));
+}
+
+// Event handlers for MyFrame
 void MyFrame::OnExit(wxCommandEvent &event) {
   Close(true);
 }
@@ -135,4 +171,23 @@ void MyFrame::OnClickBtn2(wxCommandEvent &event) {
 	std::cout << "Btn 2 clicked. ID: " << event.GetId() << std::endl;
 }
 
-// Custom panel class implementation
+void MyFrame::OnSize(wxSizeEvent &event) {
+  std::cout << "FRAME size event; height: " << event.GetSize().GetHeight() << "; width: " << event.GetSize().GetWidth() << std::endl;
+  event.Skip();  // Should call skip to not mess with the default implementation of size handlers (wxWidgets handles size events internally)
+}
+
+// Event handlers for MyPanel
+void MyPanel::OnClick(wxCommandEvent &event) {
+  std::cout << "PANEL standard button clicked. ID: " << event.GetId() << std::endl;
+  // event.Skip();  // if Skip() is called here, the event will propagate to the MyFrame class and will be handled by the standard mytton handler; works ONLY for wxCommandEvent, not for wxSizeEvent nor others
+}
+
+void MyPanel::OnClickDynamic(wxCommandEvent &event) {  // made public for demo
+  std::cout << "PANEL dynamic button clicked. ID: " << event.GetId() << std::endl;
+  // event.Skip();  // if Skip() is called here, the event will propagate to the MyFrame class and will be handled by the standard mytton handler; works ONLY for wxCommandEvent, not for wxSizeEvent nor others
+}
+
+void MyPanel::OnSize(wxSizeEvent &event) {
+  std::cout << "PANEL size event; height: " << event.GetSize().GetHeight() << "; width: " << event.GetSize().GetWidth() << std::endl;
+  event.Skip();  // even though the panel is the frame's child, the size event does not propagate to the frame
+}
