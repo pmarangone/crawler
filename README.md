@@ -1,6 +1,6 @@
-# Crawler
+# Crawler CS188
 
-Custom homemade replica of Berkeley's CS188 class.
+Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets and SDL2 by Patrick Marangone and Sergei Kononov.
 
 ## Tentative TODOs
 

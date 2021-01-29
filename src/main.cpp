@@ -28,16 +28,18 @@ class MyFrame : public wxFrame {
   void OnHello(wxCommandEvent &event);
   void OnExit(wxCommandEvent &event);
   void OnAbout(wxCommandEvent &event);
-	void OnClick(wxCommandEvent &event);	// mouse click handler
 	void OnClickBtn1(wxCommandEvent &event);	// btn1 mouse click handler
-  wxDECLARE_EVENT_TABLE();
+	void OnClickBtn2(wxCommandEvent &event);	// btn1 mouse click handler
+	void OnClick(wxCommandEvent &event);	// mouse click handler
+  wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
 };
 
 // Unique menu command identifiers
 enum {
   ID_Hello = wxID_LAST + 1,
 	ID_BTN1,
-	ID_BTN2
+	ID_BTN2,
+	ID_BTN3
   // No need to implement "About" and "Exit"
 };
 
@@ -48,9 +50,19 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
   EVT_MENU(wxID_EXIT,  MyFrame::OnExit)
   EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
 	EVT_BUTTON(ID_BTN1, MyFrame::OnClickBtn1)	// btn1 mouse click
+	EVT_BUTTON(ID_BTN2, MyFrame::OnClickBtn2)	// btn2 mouse click
 	EVT_BUTTON(wxID_ANY, MyFrame::OnClick)	// wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
 wxEND_EVENT_TABLE()
 ; // clang-format on
+
+// Custom panel class serving as a button's parent
+class MyPanel : public wxPanel {
+ public:
+  MyPanel(wxWindow *parent); 
+ private:
+  void OnClick(wxCommandEvent &event);
+  wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
+};
 
 
 // GUI.cpp
@@ -86,10 +98,12 @@ MyFrame::MyFrame(const wxString &title, const wxPoint &pos, const wxSize &size) 
 
   wxButton *btn1 = new wxButton(this, ID_BTN1, "OK");	// ID number generated is negative
   wxButton *btn2 = new wxButton(this, ID_BTN2, "Click me!");
+  wxButton *btn3 = new wxButton(this, ID_BTN3, "Click me!");
 
   wxBoxSizer *s1 = new wxBoxSizer(wxHORIZONTAL);
-  s1->Add(btn1, 0, wxCENTER | wxALL, 100);
-  s1->Add(btn2, 0, wxCENTER | wxALL, 100);
+  s1->Add(btn1, 0, wxCENTER | wxALL, 50);
+  s1->Add(btn2, 0, wxCENTER | wxALL, 50);
+  s1->Add(btn3, 0, wxCENTER | wxALL, 50);
 
   this->SetSizerAndFit(s1);
 }
@@ -108,10 +122,17 @@ void MyFrame::OnHello(wxCommandEvent &event) {
 }
 
 // Mouse click for all btn
-void MyFrame::OnClick(wxCommandEvent &event) {
+void MyFrame::OnClick(wxCommandEvent &event) {  // for events objects deriving from wxCommandEvent, the events get propagated thru parent controls (current parent where e.g. a button is, i.e. widnow, panel, frame, etc.) 
 	std::cout << "Standard button clicked. ID: " << event.GetId() << std::endl;
+  // event.Skip();  // force event propagation to the next EVT_BUTTON event in the table (omit, if you put EVT_BUTTON(wxID_ANY, MyFrame::OnClick) in the bottom of the event table)
 }
 
 void MyFrame::OnClickBtn1(wxCommandEvent &event) {
 	std::cout << "Btn 1 clicked. ID: " << event.GetId() << std::endl;
 }
+
+void MyFrame::OnClickBtn2(wxCommandEvent &event) {
+	std::cout << "Btn 2 clicked. ID: " << event.GetId() << std::endl;
+}
+
+// Custom panel class implementation
