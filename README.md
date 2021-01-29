@@ -1,6 +1,6 @@
 # Crawler CS188
 
-Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets and SDL2 by Patrick Marangone ([@pmarangone](https://github.com/pmarangone)) and Sergei Kononov ([hemulens](https://github.com/hemulens)).
+Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets and SDL2 by Patrick Marangone (@[pmarangone](https://github.com/pmarangone)) and Sergei Kononov (@[hemulens](https://github.com/hemulens)).
 
 ## Target
 
