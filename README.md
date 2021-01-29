@@ -4,7 +4,7 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets 
 
 ## Target
 
-![Target interface of the project](_resources/img/example-berkeley-1.png)
+![Target interface of the project](_resources/img/example-berkeley-1.png "Crawler CS188")
 
 ## Tentative TODOs
 
