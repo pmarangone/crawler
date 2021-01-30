@@ -1,53 +1,17 @@
-// Intro to events
-// Tutorial on events: https://www.youtube.com/watch?v=5v00F8hEV7E
-// Tutorial on IDLE events: https://www.youtube.com/watch?v=4RkvSf6ExxY&list=PLpHIphr3laQbBLJ8j4iXy8lieaiY9Q10y&index=8
+#include "gui.h"
 
-// GUI.h
+// Main function implementation
+wxIMPLEMENT_APP(CrawlerApp);
 
-// https://docs.wxwidgets.org/3.0/overview_helloworld.html
+// Called upon startup and should be used to initialize the program
+bool CrawlerApp::OnInit() {
+  AppFrame *frame = new AppFrame("Crawler CS188", (wxDefaultPosition), wxDefaultSize);
+  frame->Show(true);
+  return true;
+}
 
-// For compilers that support precompilation, includes "wx/wx.h"; this global header already includes wx/wx.h
-#include <wx/wxprec.h>
-#include <wx/listctrl.h>   // sizers 2
-// #include <wx/splitter.h>   // splitters
 
-#ifndef WX_PRECOMP
-  #include <wx/wx.h>
-#endif
 
-class CrawlerApp : public wxApp {
- public:
-  virtual bool OnInit();
-};
-
-// Main frame; alternative – wxDialog
-class AppFrame : public wxFrame {
- public:
-  AppFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
- private:
-  // Event hanlers – no need to be virtual nor public
-  void OnHello(wxCommandEvent &event);
-  void OnExit(wxCommandEvent &event);
-  void OnAbout(wxCommandEvent &event);
-  
-	void OnClickBtn1(wxCommandEvent &event);	// btn1 mouse click handler
-	void OnClickBtn2(wxCommandEvent &event);	// btn1 mouse click handler
-	void OnClick(wxCommandEvent &);	// mouse click handler; event arg can be skipped
-  void OnSize(wxSizeEvent &);
-  void OnIdle(wxIdleEvent &);
-  wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
-};
-
-// Custom panel class serving as a button's parent
-class MyPanel : public wxPanel {
- public:
-  void OnClickDynamic(wxCommandEvent &event);  // made public to be accessible from within AppFrame class (for demo)
-  MyPanel(wxWindow *parent); 
- private:
-  void OnClick(wxCommandEvent &event);
-  void OnSize(wxSizeEvent &);  
-  wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
-};
 
 // Unique menu command identifiers (regardless of the class)
 enum {
@@ -72,26 +36,6 @@ wxBEGIN_EVENT_TABLE(AppFrame, wxFrame)
 wxEND_EVENT_TABLE()
 ; // clang-format on
 
-// Custom event table for the MyPanel class
-// clang-format off
-wxBEGIN_EVENT_TABLE(MyPanel, wxPanel)
-  EVT_BUTTON(wxID_ANY, MyPanel::OnClick)  // standard event handler goes last (overriding)
-wxEND_EVENT_TABLE()
-; // clang-format on
-
-
-
-// GUI.cpp
-
-// Main function implementation
-wxIMPLEMENT_APP(CrawlerApp);
-
-// Called upon startup and should be used to initialize the program
-bool CrawlerApp::OnInit() {
-  AppFrame *frame = new AppFrame("Crawler CS188", (wxDefaultPosition), wxDefaultSize);
-  frame->Show(true);
-  return true;
-}
 
 // Main window
 AppFrame::AppFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(NULL, wxID_ANY, title, pos, size) {
@@ -112,7 +56,7 @@ AppFrame::AppFrame(const wxString &title, const wxPoint &pos, const wxSize &size
   SetStatusText("Reinforcement Learning: Crawler CS188");
 
   // Buttons, sizer and panels
-
+  
   wxButton *btn1 = new wxButton(this, ID_BTN1, "Button 1");	// ID number generated is negative
   wxButton *btn2 = new wxButton(this, ID_BTN2, "Button 2");
   wxButton *btn3 = new wxButton(this, ID_BTN3, "Standard Button");
@@ -141,11 +85,6 @@ AppFrame::AppFrame(const wxString &title, const wxPoint &pos, const wxSize &size
   btn6->Bind(wxEVT_BUTTON, [](wxCommandEvent &event){
     std::cout << "PANEL dynamic LAMBDA button clicked. ID: " << event.GetId() << std::endl;
   });
-}
-
-// MyPanel constructor
-MyPanel::MyPanel(wxWindow *parent) : wxPanel(parent) {
-  this->SetBackgroundColour(wxColour(200, 100, 100));
 }
 
 // Event handlers for AppFrame
@@ -182,21 +121,5 @@ void AppFrame::OnSize(wxSizeEvent &event) {
 
 void AppFrame::OnIdle(wxIdleEvent &event) {
   // wxMessageBox("AppFrame::OnIdle");  // example of a popping dialog
-
-}
-
-// Event handlers for MyPanel
-void MyPanel::OnClick(wxCommandEvent &event) {
-  std::cout << "PANEL standard button clicked. ID: " << event.GetId() << std::endl;
-  // event.Skip();  // if Skip() is called here, the event will propagate to the AppFrame class and will be handled by the standard mytton handler; works ONLY for wxCommandEvent, not for wxSizeEvent nor others
-}
-
-void MyPanel::OnClickDynamic(wxCommandEvent &event) {  // made public for demo
-  std::cout << "PANEL dynamic button clicked. ID: " << event.GetId() << std::endl;
-  // event.Skip();  // if Skip() is called here, the event will propagate to the AppFrame class and will be handled by the standard mytton handler; works ONLY for wxCommandEvent, not for wxSizeEvent nor others
-}
-
-void MyPanel::OnSize(wxSizeEvent &event) {
-  std::cout << "PANEL size event; height: " << event.GetSize().GetHeight() << "; width: " << event.GetSize().GetWidth() << std::endl;
-  event.Skip();  // even though the panel is the frame's child, the size event does not propagate to the frame
+  std::cout << "On idle event" << std::endl;
 }
