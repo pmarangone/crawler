@@ -11,7 +11,7 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets 
 - [ ] Learn how to build a CS188's crawler-app-like interface in WxWidgets
 - [ ] Learn how to work with pixels in WxWidgets
   - [ ] a) Use WxWidgets
-  - [ ] b) Integrate SDL2 into WxWidgets GUI
+  - [ ] b) [Integrate](http://code.technoplaza.net/wx-sdl/) SDL2 into WxWidgets GUI
 - [ ] Build GUI
   - [ ] Create top and bottom panels
   - [ ] Add two buttons: ["run", "stop"]
