@@ -1,5 +1,6 @@
 // Intro to events
-// Tutorial: https://www.youtube.com/watch?v=5v00F8hEV7E
+// Tutorial on events: https://www.youtube.com/watch?v=5v00F8hEV7E
+// Tutorial on IDLE events: https://www.youtube.com/watch?v=4RkvSf6ExxY&list=PLpHIphr3laQbBLJ8j4iXy8lieaiY9Q10y&index=8
 
 // GUI.h
 
@@ -8,7 +9,7 @@
 // For compilers that support precompilation, includes "wx/wx.h"; this global header already includes wx/wx.h
 #include <wx/wxprec.h>
 #include <wx/listctrl.h>   // sizers 2
-#include <wx/splitter.h>   // splitters
+// #include <wx/splitter.h>   // splitters
 
 #ifndef WX_PRECOMP
   #include <wx/wx.h>
@@ -32,6 +33,7 @@ class MyFrame : public wxFrame {
 	void OnClickBtn2(wxCommandEvent &event);	// btn1 mouse click handler
 	void OnClick(wxCommandEvent &);	// mouse click handler; event arg can be skipped
   void OnSize(wxSizeEvent &);
+  void OnIdle(wxIdleEvent &);
   wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
 };
 
@@ -65,6 +67,7 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_BUTTON(ID_BTN2, MyFrame::OnClickBtn2)	// btn2 mouse click
 	EVT_BUTTON(wxID_ANY, MyFrame::OnClick)	// wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
   EVT_SIZE(MyFrame::OnSize)
+  EVT_IDLE(MyFrame::OnIdle)
 wxEND_EVENT_TABLE()
 ; // clang-format on
 
@@ -174,6 +177,11 @@ void MyFrame::OnClickBtn2(wxCommandEvent &event) {
 void MyFrame::OnSize(wxSizeEvent &event) {
   std::cout << "FRAME size event; height: " << event.GetSize().GetHeight() << "; width: " << event.GetSize().GetWidth() << std::endl;
   event.Skip();  // Should call skip to not mess with the default implementation of size handlers (wxWidgets handles size events internally)
+}
+
+void MyFrame::OnIdle(wxIdleEvent &event) {
+  // wxMessageBox("MyFrame::OnIdle");  // example of a popping dialog
+  
 }
 
 // Event handlers for MyPanel
