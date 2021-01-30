@@ -21,5 +21,8 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets 
 
 ## References
 
-- [CS188 Reinforcement Learning lecture](https://www.youtube.com/watch?v=TiXS7vROBEg&t=775s)
+- CS188 Reinforcement Learning lecture
+  - [Main](https://www.youtube.com/watch?v=TiXS7vROBEg&t=775s)
+  - [Auxiliary](https://www.youtube.com/watch?v=aTcIQWMPmJY&t=607s&ab_channel=CS188)
 - [The GUI of inspiration](https://www.youtube.com/watch?v=PBjVn5OWK0k)
+- [GitHub reference repo](https://github.com/rwwaskk/CS188-Berkeley/blob/master/reinforcement/crawler.py)
