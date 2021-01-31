@@ -11,10 +11,11 @@
 #endif
 
 // Custom panel class serving as a button's parent
-class MyPanel : public wxPanel {
+class ControlPanel : public wxPanel {
  public:
-  void OnClickDynamic(wxCommandEvent &event);  // made public to be accessible from within AppFrame class (for demo)
-  MyPanel(wxWindow *parent); 
+  ControlPanel(wxWindow *parent); 
+  ControlPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size, long style, const wxString &name); 
+  void OnClickDynamic(wxCommandEvent &event);  // made public to be accessible from within MainFrame class (for demo)
  private:
   void OnClick(wxCommandEvent &event);
   void OnSize(wxSizeEvent &);  

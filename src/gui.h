@@ -3,7 +3,7 @@
 
 // For compilers that support precompilation, includes "wx/wx.h"; this global header already includes wx/wx.h
 #include <wx/wxprec.h>
-#include <wx/listctrl.h>   // sizers 2
+#include <wx/listctrl.h>  // sizers 1 & 2
 // #include <wx/splitter.h>   // splitters
 
 #ifndef WX_PRECOMP
@@ -18,20 +18,20 @@ class CrawlerApp : public wxApp {
 };
 
 // Main frame; alternative – wxDialog
-class AppFrame : public wxFrame {
+class MainFrame : public wxFrame {
  public:
-  AppFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
+  MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
  private:
   // Event hanlers – no need to be virtual nor public
   void OnHello(wxCommandEvent &event);
   void OnExit(wxCommandEvent &event);
   void OnAbout(wxCommandEvent &event);
   
-	void OnClickBtn1(wxCommandEvent &event);	// btn1 mouse click handler
-	void OnClickBtn2(wxCommandEvent &event);	// btn1 mouse click handler
+	void OnClickRun(wxCommandEvent &event);
+	void OnClickStop(wxCommandEvent &event);
 	void OnClick(wxCommandEvent &);	// mouse click handler; event arg can be skipped
   void OnSize(wxSizeEvent &);
-  void OnIdle(wxIdleEvent &);
+  // void OnIdle(wxIdleEvent &);
   wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
 };
 
