@@ -6,8 +6,7 @@
                 "${workspaceFolder}/src/**",
                 "/usr/local/include/wx-3.1/**",
                 "/usr/local/lib/wx/include/osx_cocoa-unicode-3.1",
-                "/usr/local/lib/wx/**",
-                "/usr/local/include/wx-3.1"
+                "/usr/local/Cellar/sdl2/2.0.14_1/include/SDL2"
             ],
             "defines": [
                 "WX_PRECOMP",
