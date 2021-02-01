@@ -1,13 +1,5 @@
 #include "gui.h"
 
-// wxWidgets entry point: hands over control of main to wxWidgets
-// Called upon wxWidgets startup and should be used to initialize the program
-bool CrawlerApp::OnInit() {
-  MainFrame *frame = new MainFrame("Crawler CS188", (wxDefaultPosition), wxDefaultSize);
-  frame->Show(true);
-  return true;
-}
-
 // Unique menu command identifiers (regardless of the class)
 enum ID {  // No need to implement "About" and "Exit" (auto)
   Hello = wxID_LAST + 1,
@@ -30,7 +22,7 @@ wxEND_EVENT_TABLE()
 ;  // clang-format on
 
 // Main window
-MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(NULL, wxID_ANY, title, pos, size) {
+MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(NULL, wxID_ANY, title, pos, size), _width(400) {
   // Setting menu items & status bar; list of standard IDs: https://docs.wxwidgets.org/3.0/page_stockitems.html
   wxMenu *menuFile = new wxMenu;
   menuFile->Append(ID::Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
@@ -48,15 +40,15 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
   SetStatusText("Reinforcement Learning: Crawler CS188");
 
   // Contol panels
-  wxPanel *panelTop = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(400, 100));
+  wxPanel *panelTop = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(_width, 100));
   panelTop->SetBackgroundColour(wxColour(100, 200, 200));
-  wxPanel *panelTopCH = new wxPanel(panelTop, wxID_ANY, wxDefaultPosition, wxSize(400, 100));
+  wxPanel *panelTopCH = new wxPanel(panelTop, wxID_ANY, wxDefaultPosition, wxSize(_width, 100));
   // panelTopCH->SetBackgroundColour(wxColour(100, 200, 200));
-  wxPanel *panelMiddle = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(400, 100));
+  wxPanel *panelMiddle = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(_width, 100));
   panelMiddle->SetBackgroundColour(wxColour(233, 233, 233));
-  wxPanel *panelBottom = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(400, 100));
+  wxPanel *panelBottom = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(_width, 100));
   panelBottom->SetBackgroundColour(wxColour(100, 100, 200));
-  wxPanel *panelBottomCH = new wxPanel(panelBottom, wxID_ANY, wxDefaultPosition, wxSize(400, 100));
+  wxPanel *panelBottomCH = new wxPanel(panelBottom, wxID_ANY, wxDefaultPosition, wxSize(_width, 100));
 
   // Main vertical sizer
   wxBoxSizer *sizerMain = new wxBoxSizer(wxVERTICAL);
@@ -85,17 +77,30 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
 
   panelBottom->SetSizerAndFit(sizerBottomCV);
 
-  this->SetSizerAndFit(sizerMain);
+  // Middle sizer – _graphics
+  // Graphics _graphics(panelMiddle, _width, 200);
+  _graphics = new Graphics(panelMiddle, _width, 200);
+  _graphics->SetBackgroundStyle(wxBG_STYLE_PAINT);
+  _graphics->GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent though handle
 
-  //   // SDL window
-  //   SDL_Window *sdlWindow = SDL_CreateWindowFrom((void *) panelMiddle->GetHandle());
-  //   if (sdlWindow == NULL) {
-  //     std::cerr << "SDL NULL Pointer ERROR";
-  //     return;
-  //   }
-  //   SDL_Surface *windowSurface = nullptr;
-  //  // This line causes a segmentation fault
-  //   windowSurface = SDL_GetWindowSurface(sdlWindow);
+
+  wxBoxSizer* sizerGraphics = new wxBoxSizer(wxVERTICAL);
+  sizerGraphics->Add(_graphics->GetRenderSurface(), 0);
+  panelMiddle->SetSizerAndFit(sizerGraphics);
+  // Layout(); // resize element to cover the entire window: https://docs.wxwidgets.org/trunk/classwx_top_level_window.html#adfe7e3f4a32f3ed178968f64431bbfe0
+
+  _graphics->SetTimerOwner(this);
+  _graphics->StartTimer(17);
+  this->Bind(wxEVT_TIMER, &MainFrame::OnTimer, this);
+
+  this->SetSizerAndFit(sizerMain);
+}
+
+MainFrame::~MainFrame() {
+  if (_graphics != nullptr) {
+    delete _graphics;
+    std::cout << "_graphics deallocated" << std::endl;
+  }
 }
 
 // Event handlers for MainFrame
@@ -134,3 +139,24 @@ void MainFrame::OnClick(wxCommandEvent &event) {  // for events objects deriving
 //   // wxMessageBox("MainFrame::OnIdle");  // example of a popping dialog
 //   std::cout << "On idle event" << std::endl;
 // }
+
+void MainFrame::OnPaint(wxPaintEvent& event) {
+  wxPaintDC dc(_graphics->GetRenderSurface());  // ?
+  if (_graphics->GetBitmapBuffer()->IsOk()) {
+    dc.DrawBitmap(*_graphics->GetBitmapBuffer(), 0, 0);
+  }
+}
+
+void MainFrame::OnTimer(wxTimerEvent& event) {
+  _graphics->RebuildBufferAndRefresh();
+}
+
+
+
+// wxWidgets entry point: hands over control of main to wxWidgets
+// Called upon wxWidgets startup and should be used to initialize the program
+bool CrawlerApp::OnInit() {
+  MainFrame *frame = new MainFrame("Crawler CS188", (wxDefaultPosition), wxDefaultSize);
+  frame->Show(true);
+  return true;
+}

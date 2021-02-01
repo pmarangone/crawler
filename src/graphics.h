@@ -1,28 +1,34 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-#include <SDL.h>
+#include <wx/wxprec.h>
+#include <wx/listctrl.h>  // sizers 1 & 2
+#include <wx/dcclient.h>
+#include <wx/rawbmp.h>
+#include <wx/timer.h>
 
-class Screen {
+#ifndef WX_PRECOMP
+  #include <wx/wx.h>
+#endif
+
+class Graphics {
  public:
-  Screen();
-  virtual ~Screen();
-  bool init();
-  void close();
-  bool processEvents();
-  void setPixel(int x, int y, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
-  void update();
-  void boxBlur();
-  void clear();
-  const static int SCREEN_WIDTH = 400;
-  const static int SCREEN_HEIGHT = 200;
-
+  Graphics(wxWindow *parent, int width, int height);
+  ~Graphics();
+  void SetBackgroundStyle(wxBackgroundStyle style);
+  void SetTimerOwner(wxFrame *frame);
+  void StartTimer(unsigned int t);
+  wxWindow *GetRenderSurface();
+  wxBitmap *GetBitmapBuffer();
+  void RebuildBufferAndRefresh();
  private:
-  SDL_Window *_window;
-  SDL_Renderer *_renderer;
-  SDL_Texture *_texture;
-  Uint32 *_buffer1;
-  Uint32 *_buffer2;
+  int _width;
+  int _height;
+  int _curRGB;
+  wxTimer _timer;
+  wxBitmap _bitmapBuffer;
+  wxWindow *_renderSurface;
+  unsigned char *_pixelData;  // 8 bit for rgba array
 };
 
 #endif /* GRAPHICS_H */
