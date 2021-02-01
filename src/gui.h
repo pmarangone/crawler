@@ -1,6 +1,7 @@
 #ifndef GUI_H
 #define GUI_H
 
+#include <SDL.h>
 // For compilers that support precompilation, includes "wx/wx.h"; this global header already includes wx/wx.h
 #include <wx/wxprec.h>
 #include <wx/listctrl.h>  // sizers 1 & 2
@@ -11,10 +12,11 @@
 #endif
 
 #include "panel.h"
+#include "graphics.h"
 
 class CrawlerApp : public wxApp {
  public:
-  virtual bool OnInit();
+  virtual bool OnInit();  // wxWidgets entry point: hands over control of main to wxWidgets
 };
 
 // Main frame; alternative – wxDialog

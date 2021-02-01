@@ -1,9 +1,7 @@
 #include "gui.h"
 
-// Main function implementation
-wxIMPLEMENT_APP(CrawlerApp);
-
-// Called upon startup and should be used to initialize the program
+// wxWidgets entry point: hands over control of main to wxWidgets
+// Called upon wxWidgets startup and should be used to initialize the program
 bool CrawlerApp::OnInit() {
   MainFrame *frame = new MainFrame("Crawler CS188", (wxDefaultPosition), wxDefaultSize);
   frame->Show(true);
@@ -13,7 +11,7 @@ bool CrawlerApp::OnInit() {
 // Unique menu command identifiers (regardless of the class)
 enum ID {  // No need to implement "About" and "Exit" (auto)
   Hello = wxID_LAST + 1,
-	BTN_RUN,
+  BTN_RUN,
   BTN_STOP
 };
 
@@ -29,8 +27,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
   // EVT_SIZE(MainFrame::OnSize)
   // EVT_IDLE(MainFrame::OnIdle)
 wxEND_EVENT_TABLE()
-; // clang-format on
-
+;  // clang-format on
 
 // Main window
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(NULL, wxID_ANY, title, pos, size) {
@@ -50,7 +47,6 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
   CreateStatusBar();
   SetStatusText("Reinforcement Learning: Crawler CS188");
 
-
   // Contol panels
   wxPanel *panelTop = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(400, 100));
   panelTop->SetBackgroundColour(wxColour(100, 200, 200));
@@ -61,7 +57,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
   wxPanel *panelBottom = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(400, 100));
   panelBottom->SetBackgroundColour(wxColour(100, 100, 200));
   wxPanel *panelBottomCH = new wxPanel(panelBottom, wxID_ANY, wxDefaultPosition, wxSize(400, 100));
-  
+
   // Main vertical sizer
   wxBoxSizer *sizerMain = new wxBoxSizer(wxVERTICAL);
   sizerMain->Add(panelTop, 0, wxEXPAND);
@@ -79,7 +75,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
 
   panelTop->SetSizerAndFit(sizerTopCV);
 
-  // Bottom sizer
+  // Bottom sizer (nested)
   wxSizer *sizerBottomCV = new wxBoxSizer(wxVERTICAL);
   wxSizer *sizerBottomCH = new wxBoxSizer(wxHORIZONTAL);
 
@@ -91,6 +87,15 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
 
   this->SetSizerAndFit(sizerMain);
 
+  //   // SDL window
+  //   SDL_Window *sdlWindow = SDL_CreateWindowFrom((void *) panelMiddle->GetHandle());
+  //   if (sdlWindow == NULL) {
+  //     std::cerr << "SDL NULL Pointer ERROR";
+  //     return;
+  //   }
+  //   SDL_Surface *windowSurface = nullptr;
+  //  // This line causes a segmentation fault
+  //   windowSurface = SDL_GetWindowSurface(sdlWindow);
 }
 
 // Event handlers for MainFrame
@@ -107,16 +112,16 @@ void MainFrame::OnHello(wxCommandEvent &event) {
 }
 
 void MainFrame::OnClickRun(wxCommandEvent &event) {
-	std::cout << "RUN btn clicked. ID: " << event.GetId() << std::endl;
+  std::cout << "RUN btn clicked. ID: " << event.GetId() << std::endl;
 }
 
 void MainFrame::OnClickStop(wxCommandEvent &event) {
-	std::cout << "STOP btn clicked. ID: " << event.GetId() << std::endl;
+  std::cout << "STOP btn clicked. ID: " << event.GetId() << std::endl;
 }
 
 // Mouse click for all btn
-void MainFrame::OnClick(wxCommandEvent &event) {  // for events objects deriving from wxCommandEvent, the events get propagated thru parent controls (current parent where e.g. a button is, i.e. widnow, panel, frame, etc.) 
-	std::cout << "Standard button clicked. ID: " << event.GetId() << std::endl;
+void MainFrame::OnClick(wxCommandEvent &event) {  // for events objects deriving from wxCommandEvent, the events get propagated thru parent controls (current parent where e.g. a button is, i.e. widnow, panel, frame, etc.)
+  std::cout << "Standard button clicked. ID: " << event.GetId() << std::endl;
   // event.Skip();  // force event propagation to the next EVT_BUTTON event in the table (omit, if you put EVT_BUTTON(wxID_ANY, MainFrame::OnClick) in the bottom of the event table)
 }
 
