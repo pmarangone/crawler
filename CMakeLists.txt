@@ -15,17 +15,18 @@ set(wxWidgets_FIND_COMPONENTS base core net xml html adv)
 # set(CMAKE_BUILD_TYPE Debug)
 
 # set(CMAKE_MODULE_PATH "/Users/Shared/C++/wxWidgets-3.1.4/build-cocoa-debug/")
-find_package(SDL2 REQUIRED)
+# find_package(SDL2 REQUIRED)
 find_package(wxWidgets REQUIRED COMPONENTS ${wxWidgets_FIND_COMPONENTS})
 # include_directories("/Users/Shared/C++/wxWidgets-3.1.4/build-cocoa-debug/lib/wx/include/")
-include_directories(${SDL2_INCLUDE_DIRS})
+# include_directories(${SDL2_INCLUDE_DIRS})
 include(${wxWidgets_USE_FILE})
 
 # INCLUDE ALL .CPP FILES FROM SRC DIRECTORY
 file(GLOB project_SRCS src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${project_SRCS})
-target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} ${wxWidgets_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
+# target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} ${wxWidgets_LIBRARIES})
 
 
 
