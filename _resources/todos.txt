@@ -5,9 +5,12 @@ Tentative TODOs:
   a) Use WxWidgets
   b) Integrate SDL2 into WxWidgets GUI
 - Build GUI
-  - Create top and bottom panels
-  - Add two buttons: ["run", "stop"] + see other buttons needed
+  + Create top and bottom panels
+  + Add two buttons: ["run", "stop"] + see other buttons needed
 - Create graphics:
-  - Create crawler's body
+  - Window
+    - Switch to smart pointers
+    - Implement rule of five for Graphics
+  - Crawler's body
     - Create a function Body::walk() where the crawler walks automatically; for reference: https://github.com/rwwaskk/CS188-Berkeley/blob/master/reinforcement/crawler.py
 - 

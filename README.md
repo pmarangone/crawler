@@ -8,16 +8,21 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets 
 
 ## Tentative TODOs
 
-- [ ] Learn how to build a CS188's crawler-app-like interface in WxWidgets
-- [ ] Learn how to work with pixels in WxWidgets
-  - [ ] a) Use WxWidgets
-  - [ ] b) [Integrate](http://code.technoplaza.net/wx-sdl/) SDL2 into WxWidgets GUI
+- [x] Find approach to building a CS188's crawler-app-like GUI and graphics
+- [ ] Choose best suitable libraries
+  - [x] a) Use WxWidgets for GUI
+  - [x] b) [Integrate](http://code.technoplaza.net/wx-sdl/) SDL2 (graphics) into WxWidgets GUI (CANCELED)
 - [ ] Build GUI
-  - [ ] Create top and bottom panels
-  - [ ] Add two buttons: ["run", "stop"]
+  - [x] Create top and bottom panels
+  - [x] Add two buttons: ["run", "stop"]
+  - [ ] ...
 - [ ] Create graphics
+  - [ ] Learn how [bitmap graphics](https://stackoverflow.com/questions/55877790/wxwidgets-best-control-for-drawing-realtime-graphics) works in wxWidgets
+  - [ ] Draw the floor
   - [ ] Create crawler's body
     - [ ] Create a function Body::walk() where the crawler walks automatically; for reference – [this repo](https://github.com/rwwaskk/CS188-Berkeley/blob/master/reinforcement/crawler.py)
+- [ ] Perfectionist's list:
+  - [ ] Automatically adjust width & height of the bitmap subwindow on main window resize
 
 ## References
 
