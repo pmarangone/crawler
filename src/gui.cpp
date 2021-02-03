@@ -22,7 +22,9 @@ wxEND_EVENT_TABLE()
 ;  // clang-format on
 
 // Main window
-MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(NULL, wxID_ANY, title, pos, size), _width(400) {
+MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) 
+                    : wxFrame(NULL, wxID_ANY, title, pos, size), 
+                      _width(400) {
   // Setting menu items & status bar; list of standard IDs: https://docs.wxwidgets.org/3.0/page_stockitems.html
   wxMenu *menuFile = new wxMenu;
   menuFile->Append(ID::Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
@@ -78,29 +80,28 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
   panelBottom->SetSizerAndFit(sizerBottomCV);
 
   // Middle sizer – _graphics
-  // Graphics _graphics(panelMiddle, _width, 200);
-  _graphics = new Graphics(panelMiddle, _width, 200);
-  _graphics->SetBackgroundStyle(wxBG_STYLE_PAINT);
-  _graphics->GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent though handle
-
+  Graphics g(panelMiddle, _width, 200);
+  _graphics = std::move(g);
+  _graphics.SetBackgroundStyle(wxBG_STYLE_PAINT);
+  _graphics.GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent though handle
 
   wxBoxSizer* sizerGraphics = new wxBoxSizer(wxVERTICAL);
-  sizerGraphics->Add(_graphics->GetRenderSurface(), 0);
+  sizerGraphics->Add(_graphics.GetRenderSurface(), 1, wxALIGN_CENTER);  // try wxEXPAND and ratio of 1
   panelMiddle->SetSizerAndFit(sizerGraphics);
   // Layout(); // resize element to cover the entire window: https://docs.wxwidgets.org/trunk/classwx_top_level_window.html#adfe7e3f4a32f3ed178968f64431bbfe0
 
-  _graphics->SetTimerOwner(this);
-  _graphics->StartTimer(17);
+  _graphics.SetTimerOwner(this);
+  _graphics.StartTimer(17);
   this->Bind(wxEVT_TIMER, &MainFrame::OnTimer, this);
 
   this->SetSizerAndFit(sizerMain);
 }
 
 MainFrame::~MainFrame() {
-  if (_graphics != nullptr) {
-    delete _graphics;
-    std::cout << "_graphics deallocated" << std::endl;
-  }
+  // if (_graphics != nullptr) {
+  //   delete _graphics;
+  //   std::cout << "_graphics deallocated" << std::endl;
+  // }
 }
 
 // Event handlers for MainFrame
@@ -141,14 +142,14 @@ void MainFrame::OnClick(wxCommandEvent &event) {  // for events objects deriving
 // }
 
 void MainFrame::OnPaint(wxPaintEvent& event) {
-  wxPaintDC dc(_graphics->GetRenderSurface());  // ?
-  if (_graphics->GetBitmapBuffer()->IsOk()) {
-    dc.DrawBitmap(*_graphics->GetBitmapBuffer(), 0, 0);
+  wxPaintDC dc(_graphics.GetRenderSurface());  // ?
+  if (_graphics.GetBitmapBuffer()->IsOk()) {
+    dc.DrawBitmap(*_graphics.GetBitmapBuffer(), 0, 0);
   }
 }
 
 void MainFrame::OnTimer(wxTimerEvent& event) {
-  _graphics->RebuildBufferAndRefresh();
+  _graphics.RebuildBufferAndRefresh();
 }
 
 

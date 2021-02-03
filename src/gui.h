@@ -10,8 +10,8 @@
   #include <wx/wx.h>
 #endif
 
-#include "panel.h"
 #include "graphics.h"
+#include "panel.h"
 
 class CrawlerApp : public wxApp {
  public:
@@ -42,7 +42,7 @@ class MainFrame : public wxFrame {
   wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
   // Variables
   int _width;
-  Graphics *_graphics;
+  Graphics _graphics;
 };
 
 
