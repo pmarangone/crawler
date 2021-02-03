@@ -1,17 +1,80 @@
 #include "graphics.h"
 
-Graphics::Graphics(wxWindow* parent,
-                   int width, int height) : _width(width),
-                                            _height(height),
-                                            _pixelData(new unsigned char [3 * _width * _height]),
-                                            _renderSurface(new wxWindow(parent, wxID_ANY, wxDefaultPosition,
-                                                                        wxSize(width, height))) {
-  _curRGB = 0;
+// Default constructor
+Graphics::Graphics() : _width(1),
+                       _height(1),
+                       _curRGB(0),
+                       _bitmapBuffer(_width, _height, 24),
+                       _renderSurface(nullptr),
+                       _pixelData(nullptr) {}
+
+// Overloaded default constructor
+Graphics::Graphics(wxWindow *parent,
+                   int width, 
+                   int height) : _width(width),
+                                 _height(height),
+                                 _curRGB(0),
+                                 _pixelData(new unsigned char[3 * _width * _height]),
+                                 _renderSurface(new wxWindow(parent,
+                                                             wxID_ANY, 
+                                                             wxDefaultPosition,
+                                                             wxSize(width, height))) {}
+ 
+// Move constructor 
+Graphics::Graphics(Graphics &&source) {
+  // Point variables / assign values
+  _pixelData = source._pixelData;
+  _renderSurface = source._renderSurface;
+  _bitmapBuffer = std::move(source._bitmapBuffer);  // source invalidated by moving
+  _width = source._width;
+  _height = source._height;
+  _curRGB = source._curRGB;
+  // _timer left out (no copying policy imposed by wxWidgets)
+  // Invalidate source
+  source._pixelData = nullptr;
+  source._renderSurface = nullptr;
+  source._width = 0;
+  source._height = 0;
+  source._curRGB = 0;
+  std::cout << "Moved instance " << &source << " to " << this << std::endl;
 }
 
+// Move assignment operator constructor
+Graphics &Graphics::operator=(Graphics &&source) {
+  if (this == &source) {
+    return *this;
+  }
+  // Free allocated memory (assume that the object lived before and gets reinitialized)
+  if (_pixelData != nullptr) {
+    delete[] _pixelData;
+  }
+  if (_renderSurface != nullptr) {
+    delete _renderSurface;
+  }
+  // Point variables / assign values
+  _pixelData = source._pixelData;
+  _renderSurface = source._renderSurface;
+  _bitmapBuffer = std::move(source._bitmapBuffer);  // source invalidated by moving
+  _width = source._width;
+  _height = source._height;
+  _curRGB = source._curRGB;
+  // Invalidate source
+  source._pixelData = nullptr;
+  source._renderSurface = nullptr;
+  source._width = 0;
+  source._height = 0;
+  source._curRGB = 0;
+  std::cout << "Moved '&operator=' instance " << &source << " to " << this << std::endl;
+  return *this;
+}
+
+
 Graphics::~Graphics() {
-  delete [] _pixelData;
+  if (_pixelData != nullptr) {
+    delete[] _pixelData;
+  }
   _timer.Stop();
+  std::cout << "_graphics deallocated: " << this << std::endl;
 }
 
 void Graphics::SetBackgroundStyle(wxBackgroundStyle style) {
