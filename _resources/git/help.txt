@@ -1,0 +1,7 @@
+Rewrite one branch into another one
+
+  git branch -f master dev_branch will rewrite local master branch.
+  git push remote +dev_branch:master will rewrite remote branch.
+
+  git branch -f master hemulens
+  git push git@github.com:pmarangone/crawler.git +hemulens:master
