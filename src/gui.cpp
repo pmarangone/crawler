@@ -63,9 +63,25 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
   wxSizer *sizerTopCV = new wxBoxSizer(wxVERTICAL);
   wxSizer *sizerTopCH = new wxBoxSizer(wxHORIZONTAL);
 
+  // Three sizers for behavior controls
+  wxSizer *sizerMotion = new wxBoxSizer(wxHORIZONTAL);
+  wxSizer *sizerSteps = new wxBoxSizer(wxHORIZONTAL);
+  wxSizer *sizerReset = new wxBoxSizer(wxHORIZONTAL);
+
   // sizerTopCH->Add(panelTopCH, 1, wxALIGN_CENTER);
-  sizerTopCH->Add(new wxButton(panelTop, ID::BTN_RUN, "Run"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
-  sizerTopCH->Add(new wxButton(panelTop, ID::BTN_STOP, "Stop"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
+  sizerMotion->Add(new wxButton(panelTop, ID::BTN_RUN, "Run"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerMotion->Add(new wxButton(panelTop, ID::BTN_STOP, "Stop"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+
+  sizerSteps->Add(new wxButton(panelTop, wxID_ANY, "Skip 30K steps"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerSteps->Add(new wxButton(panelTop, wxID_ANY, "Skip 1000K steps"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+
+  sizerReset->Add(new wxButton(panelTop, wxID_ANY, "Reset speed counter"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerReset->Add(new wxButton(panelTop, wxID_ANY, "Reset Q"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+
+  sizerTopCH->Add(sizerMotion, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerTopCH->Add(sizerSteps, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerTopCH->Add(sizerReset, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+
   sizerTopCV->Add(sizerTopCH, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 20);
 
   panelTop->SetSizerAndFit(sizerTopCV);
@@ -74,8 +90,24 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
   wxSizer *sizerBottomCV = new wxBoxSizer(wxVERTICAL);
   wxSizer *sizerBottomCH = new wxBoxSizer(wxHORIZONTAL);
 
-  sizerBottomCH->Add(new wxButton(panelBottom, wxID_ANY, "Button 1"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
-  sizerBottomCH->Add(new wxButton(panelBottom, wxID_ANY, "Button 2"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
+  // Three sizers for grouped variable controls
+  wxSizer *sizerEpsilon = new wxBoxSizer(wxHORIZONTAL);
+  wxSizer *sizerGamma = new wxBoxSizer(wxHORIZONTAL);
+  wxSizer *sizerAlpha = new wxBoxSizer(wxHORIZONTAL);
+
+  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, "ɛ++"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, "ɛ--"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+
+  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY, "γ++"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY, "γ--"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+
+  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, "α++"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, "α--"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+
+  sizerBottomCH->Add(sizerEpsilon, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerBottomCH->Add(sizerGamma, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerBottomCH->Add(sizerAlpha, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+
   sizerBottomCV->Add(sizerBottomCH, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 20);
 
   panelBottom->SetSizerAndFit(sizerBottomCV);
