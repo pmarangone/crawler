@@ -21,7 +21,7 @@ class CrawlerApp : public wxApp {
 // Main frame; alternative – wxDialog
 class MainFrame : public wxFrame {
  public:
-  MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
+  MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size, long style);  // https://docs.wxwidgets.org/stable/classwx_frame.html#a01b53ac2d4a5e6b0773ecbcf7b5f6af8
   virtual ~MainFrame();
  private:
   // Event handlers – no need to be virtual nor public

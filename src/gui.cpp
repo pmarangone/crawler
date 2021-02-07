@@ -22,9 +22,11 @@ wxEND_EVENT_TABLE()
 ;  // clang-format on
 
 // Main window
-MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) 
-                    : wxFrame(NULL, wxID_ANY, title, pos, size), 
-                      _width(400) {
+
+// Constructor for a non-resizable window (use wxDEFAULT_FRAME_STYLE style for a resizable window)
+MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size, long style = wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX)) 
+                    : wxFrame(NULL, wxID_ANY, title, pos, size, style, title),
+                      _width(800) {
   // Setting menu items & status bar; list of standard IDs: https://docs.wxwidgets.org/3.0/page_stockitems.html
   wxMenu *menuFile = new wxMenu;
   menuFile->Append(ID::Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
@@ -80,13 +82,13 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
   panelBottom->SetSizerAndFit(sizerBottomCV);
 
   // Middle sizer – _graphics
-  Graphics g(panelMiddle, _width, 200);
+  Graphics g(panelMiddle, _width, 300);
   _graphics = std::move(g);
   _graphics.SetBackgroundStyle(wxBG_STYLE_PAINT);
   _graphics.GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent though handle
 
   wxBoxSizer* sizerGraphics = new wxBoxSizer(wxVERTICAL);
-  sizerGraphics->Add(_graphics.GetRenderSurface(), 1, wxALIGN_CENTER);  // try wxEXPAND and ratio of 1
+  sizerGraphics->Add(_graphics.GetRenderSurface(), 1, wxALIGN_CENTER);
   panelMiddle->SetSizerAndFit(sizerGraphics);
   // Layout(); // resize element to cover the entire window: https://docs.wxwidgets.org/trunk/classwx_top_level_window.html#adfe7e3f4a32f3ed178968f64431bbfe0
 
@@ -97,12 +99,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
   this->SetSizerAndFit(sizerMain);
 }
 
-MainFrame::~MainFrame() {
-  // if (_graphics != nullptr) {
-  //   delete _graphics;
-  //   std::cout << "_graphics deallocated" << std::endl;
-  // }
-}
+MainFrame::~MainFrame() {}
 
 // Event handlers for MainFrame
 void MainFrame::OnExit(wxCommandEvent &event) {
