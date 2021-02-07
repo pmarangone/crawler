@@ -41,7 +41,8 @@ class MainFrame : public wxFrame {
   // void OnIdle(wxIdleEvent &);
   wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
   // Variables
-  int _width;
+  int _bitmapWidth{900};
+  int _bitmapHeight{300};
   Graphics _graphics;
 };
 

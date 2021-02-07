@@ -25,8 +25,7 @@ wxEND_EVENT_TABLE()
 
 // Constructor for a non-resizable window (use wxDEFAULT_FRAME_STYLE style for a resizable window)
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size, long style = wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX)) 
-                    : wxFrame(NULL, wxID_ANY, title, pos, size, style, title),
-                      _width(800) {
+                    : wxFrame(NULL, wxID_ANY, title, pos, size, style, title) {
   // Setting menu items & status bar; list of standard IDs: https://docs.wxwidgets.org/3.0/page_stockitems.html
   wxMenu *menuFile = new wxMenu;
   menuFile->Append(ID::Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
@@ -44,15 +43,15 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
   SetStatusText("Reinforcement Learning: Crawler CS188");
 
   // Contol panels
-  wxPanel *panelTop = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(_width, 100));
+  wxPanel *panelTop = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(_bitmapWidth, 100));
   panelTop->SetBackgroundColour(wxColour(100, 200, 200));
-  wxPanel *panelTopCH = new wxPanel(panelTop, wxID_ANY, wxDefaultPosition, wxSize(_width, 100));
+  wxPanel *panelTopCH = new wxPanel(panelTop, wxID_ANY, wxDefaultPosition, wxSize(_bitmapWidth, 100));
   // panelTopCH->SetBackgroundColour(wxColour(100, 200, 200));
-  wxPanel *panelMiddle = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(_width, 100));
+  wxPanel *panelMiddle = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(_bitmapWidth, 100));
   panelMiddle->SetBackgroundColour(wxColour(233, 233, 233));
-  wxPanel *panelBottom = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(_width, 100));
+  wxPanel *panelBottom = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(_bitmapWidth, 100));
   panelBottom->SetBackgroundColour(wxColour(100, 100, 200));
-  wxPanel *panelBottomCH = new wxPanel(panelBottom, wxID_ANY, wxDefaultPosition, wxSize(_width, 100));
+  wxPanel *panelBottomCH = new wxPanel(panelBottom, wxID_ANY, wxDefaultPosition, wxSize(_bitmapWidth, 100));
 
   // Main vertical sizer
   wxBoxSizer *sizerMain = new wxBoxSizer(wxVERTICAL);
@@ -82,7 +81,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
   panelBottom->SetSizerAndFit(sizerBottomCV);
 
   // Middle sizer – _graphics
-  Graphics g(panelMiddle, _width, 300);
+  Graphics g(panelMiddle, _bitmapWidth, _bitmapHeight);
   _graphics = std::move(g);
   _graphics.SetBackgroundStyle(wxBG_STYLE_PAINT);
   _graphics.GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent though handle
