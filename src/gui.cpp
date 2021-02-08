@@ -25,7 +25,7 @@ wxEND_EVENT_TABLE()
 
 // Constructor for a non-resizable window (use wxDEFAULT_FRAME_STYLE style for a resizable window)
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos = GUI::windowPosition, const wxSize &size = GUI::windowSize, long style = GUI::windowStyle) 
-                    : wxFrame(NULL, wxID_ANY, title, pos, size, style, title) {
+                    : wxFrame(NULL, wxID_ANY, title, pos, size, style, title), _graphics(nullptr) {
   // Setting min & max size (to force no-resize option for Linux & Windows)
   this->SetMinSize(GUI::windowSize);
   this->SetMaxSize(GUI::windowSize);
@@ -116,18 +116,17 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos = GUI::windowPosi
   panelBottom->SetSizerAndFit(sizerBottomCV);
 
   // Middle sizer – _graphics
-  Graphics g(panelMiddle, GUI::bitmapWidth, GUI::bitmapHeight);
-  _graphics = std::move(g);
-  _graphics.SetBackgroundStyle(wxBG_STYLE_PAINT);
-  _graphics.GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent though handle
+  _graphics = std::make_unique<Graphics>(panelMiddle, GUI::bitmapWidth, GUI::bitmapHeight);
+  _graphics->SetBackgroundStyle(wxBG_STYLE_PAINT);
+  _graphics->GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent though handle
 
   wxBoxSizer* sizerGraphics = new wxBoxSizer(wxVERTICAL);
-  sizerGraphics->Add(_graphics.GetRenderSurface(), 1, wxALIGN_CENTER);
+  sizerGraphics->Add(_graphics->GetRenderSurface(), 1, wxALIGN_CENTER);
   panelMiddle->SetSizerAndFit(sizerGraphics);
   // Layout(); // resize element to cover the entire window: https://docs.wxwidgets.org/trunk/classwx_top_level_window.html#adfe7e3f4a32f3ed178968f64431bbfe0
 
-  _graphics.SetTimerOwner(this);
-  _graphics.StartTimer(17);
+  _graphics->SetTimerOwner(this);
+  _graphics->StartTimer(17);
   this->Bind(wxEVT_TIMER, &MainFrame::OnTimer, this);
 
   this->SetSizerAndFit(sizerMain);
@@ -173,12 +172,12 @@ void MainFrame::OnClick(wxCommandEvent &event) {  // for events objects deriving
 // }
 
 void MainFrame::OnPaint(wxPaintEvent& event) {
-  wxPaintDC dc(_graphics.GetRenderSurface());  // TODO(SK): take a deeper look into rendering mechanism (Reminder for SK) 
-  if (_graphics.GetBitmapBuffer()->IsOk()) {
-    dc.DrawBitmap(*_graphics.GetBitmapBuffer(), 0, 0);
+  wxPaintDC dc(_graphics->GetRenderSurface());  // TODO(SK): take a deeper look into rendering mechanism (Reminder for SK) 
+  if (_graphics->GetBitmapBuffer()->IsOk()) {
+    dc.DrawBitmap(*_graphics->GetBitmapBuffer(), 0, 0);
   }
 }
 
 void MainFrame::OnTimer(wxTimerEvent& event) {
-  _graphics.RebuildBufferAndRefresh();
+  _graphics->RebuildBufferAndRefresh();
 }

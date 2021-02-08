@@ -2,6 +2,7 @@
 #define GUI_H
 
 #include <string>
+#include <memory>
 
 // For compilers that support precompilation, includes "wx/wx.h"; this global header already includes wx/wx.h
 #include <wx/wxprec.h>
@@ -53,7 +54,7 @@ class MainFrame : public wxFrame {
   // void OnIdle(wxIdleEvent &);
   wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
   // Variables
-  Graphics _graphics;
+  std::unique_ptr<Graphics> _graphics;
 };
 
 
