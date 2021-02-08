@@ -95,14 +95,14 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos = wxDefaultPositi
   wxSizer *sizerGamma = new wxBoxSizer(wxHORIZONTAL);
   wxSizer *sizerAlpha = new wxBoxSizer(wxHORIZONTAL);
 
-  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, "ɛ++"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, "ɛ--"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("\u03B5++")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("\u03B5--")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY, "γ++"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY, "γ--"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY,  wxString::FromUTF8("\u03B3++")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY,  wxString::FromUTF8("\u03B3--")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, "α++"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, "α--"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("\u03B1++")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("\u03B1--")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
   sizerBottomCH->Add(sizerEpsilon, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
   sizerBottomCH->Add(sizerGamma, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
