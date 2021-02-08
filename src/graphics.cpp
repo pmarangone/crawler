@@ -74,7 +74,7 @@ Graphics::~Graphics() {
     delete[] _pixelData;
   }
   _timer.Stop();
-  std::cout << "_graphics deallocated: " << this << std::endl;
+  // std::cout << "_graphics deallocated: " << this << std::endl;
 }
 
 void Graphics::SetBackgroundStyle(wxBackgroundStyle style) {
