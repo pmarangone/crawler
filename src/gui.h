@@ -1,6 +1,8 @@
 #ifndef GUI_H
 #define GUI_H
 
+#include <string>
+
 // For compilers that support precompilation, includes "wx/wx.h"; this global header already includes wx/wx.h
 #include <wx/wxprec.h>
 #include <wx/listctrl.h>  // sizers 1 & 2
@@ -13,10 +15,20 @@
 #include "graphics.h"
 #include "panel.h"
 
-class CrawlerApp : public wxApp {
- public:
-  virtual bool OnInit();  // wxWidgets entry point: hands over control of main to wxWidgets
-};
+
+namespace GUI {
+  const std::string appTitle{"Crawler CS188"};
+  const int topPanelHeight{100};
+  const int bottomPanelHeight{100};
+  const int bitmapWidth{900};
+  const int bitmapHeight{300};
+  const int windowWidth{bitmapWidth};
+  const int windowHeight{topPanelHeight + bitmapHeight + bottomPanelHeight};
+  const wxPoint windowPosition{wxDefaultPosition};
+  const wxSize windowSize{wxSize(windowWidth, windowHeight)};
+  const long windowStyle{(wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))};  // styles are responsible for a window's resize option
+}  // namespace GUI
+
 
 // Main frame; alternative – wxDialog
 class MainFrame : public wxFrame {
@@ -41,8 +53,6 @@ class MainFrame : public wxFrame {
   // void OnIdle(wxIdleEvent &);
   wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
   // Variables
-  int _bitmapWidth{900};
-  int _bitmapHeight{300};
   Graphics _graphics;
 };
 
