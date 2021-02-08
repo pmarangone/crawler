@@ -24,7 +24,7 @@ wxEND_EVENT_TABLE()
 // Main window
 
 // Constructor for a non-resizable window (use wxDEFAULT_FRAME_STYLE style for a resizable window)
-MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size, long style = wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX)) 
+MainFrame::MainFrame(const wxString &title, const wxPoint &pos = wxDefaultPosition, const wxSize &size = wxDefaultSize, long style = (wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))) 
                     : wxFrame(NULL, wxID_ANY, title, pos, size, style, title) {
   // Setting menu items & status bar; list of standard IDs: https://docs.wxwidgets.org/3.0/page_stockitems.html
   wxMenu *menuFile = new wxMenu;
@@ -104,9 +104,9 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
   sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, "α++"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
   sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, "α--"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  sizerBottomCH->Add(sizerEpsilon, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerBottomCH->Add(sizerGamma, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerBottomCH->Add(sizerAlpha, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerBottomCH->Add(sizerEpsilon, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
+  sizerBottomCH->Add(sizerGamma, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
+  sizerBottomCH->Add(sizerAlpha, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
 
   sizerBottomCV->Add(sizerBottomCH, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 20);
 
@@ -138,7 +138,7 @@ void MainFrame::OnExit(wxCommandEvent &event) {
 }
 
 void MainFrame::OnAbout(wxCommandEvent &event) {
-  wxMessageBox("This application is built by Patrick Marangone and Sergei Kononov in an attempt to replicate the reinforcement learning crawler from UC Berkeley's CS188 class.", "About the Crawler", wxOK | wxICON_INFORMATION);
+  wxMessageBox("This application is built by Patrick Marangone and Sergei Kononov in an attempt to replicate the reinforcement learning crawler from UC Berkeley CS188 class.", "About the Crawler", wxOK | wxICON_INFORMATION);
 }
 
 void MainFrame::OnHello(wxCommandEvent &event) {
@@ -185,7 +185,7 @@ void MainFrame::OnTimer(wxTimerEvent& event) {
 // wxWidgets entry point: hands over control of main to wxWidgets
 // Called upon wxWidgets startup and should be used to initialize the program
 bool CrawlerApp::OnInit() {
-  MainFrame *frame = new MainFrame("Crawler CS188", (wxDefaultPosition), wxDefaultSize);
+  MainFrame *frame = new MainFrame("Crawler CS188");
   frame->Show(true);
   return true;
 }
