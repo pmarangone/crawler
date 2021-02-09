@@ -1,11 +1,13 @@
 #define _USE_MATH_DEFINES
 
+#include <cassert>   // assert
 #include <chrono>    // time
 #include <cmath>     // trig functions
 #include <iostream>  // debug
-#include <utility>   // pair
-#include <cassert>
+#include <memory>    // unique_ptr
 #include <queue>
+#include <utility>  // pair
+#include <vector>
 
 struct State {
   double armBucket;
@@ -17,12 +19,10 @@ struct Position {
   double y;
 };
 
-class CrawLingRobot {
-  
-public:
-
-  CrawLingRobot();
-  ~CrawLingRobot();
+class CrawlingRobot {
+ public:
+  CrawlingRobot();
+  ~CrawlingRobot();
 
   void SetAngles(double armAngle, double handAngle);
   std::pair<double, double> GetAngles();
@@ -47,20 +47,28 @@ public:
   double _maxHandAngle;
   double _minHandAngle;
 
-
   Position _robotPos;
   std::queue<int> _positions;
-
 };
 
-template <class State>
 class CrawlingRobotEnvironment {
  public:
   CrawlingRobotEnvironment();
-  // CrawlingRobotEnvironment(CrawlingRobot);  // TODO
+  CrawlingRobotEnvironment(
+      CrawlingRobot crawlingRobot);  // TODO
   ~CrawlingRobotEnvironment();
 
   State GetCurrentState();
-  State GetPossibleActions(State state);
-  std::pair<double, double> Reset();
+  std::vector<std::string> GetPossibleActions(State &state);
+  std::pair<State, double> doAction(std::string &action);
+  void Reset();
+
+  double _nArmStates = 9;
+  double _nHandStates = 13;
+
+  std::unique_ptr<CrawlingRobot> _crawlingRobot;
+  State _state;
+
+  std::vector<int> _armBuckets;
+  std::vector<int> _handBuckets;
 };
