@@ -106,7 +106,7 @@ CrawlingRobotEnvironment::CrawlingRobotEnvironment(
   }
 
   for (int i = 0; i < _nHandStates; i++) {
-    _handBuckets.push_back(minMaxHandAngles.second + (handIncrement * i));
+    _handBuckets.push_back(minMaxHandAngles.first + (handIncrement * i));
   }
 
   Reset();
