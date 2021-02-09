@@ -27,8 +27,8 @@ wxEND_EVENT_TABLE()
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos = GUI::windowPosition, const wxSize &size = GUI::windowSize, long style = GUI::windowStyle) 
                     : wxFrame(NULL, wxID_ANY, title, pos, size, style, title), _graphics(nullptr) {
   // Setting min & max size (to force no-resize option for Linux & Windows)
-  this->SetMinSize(GUI::windowSize);
-  this->SetMaxSize(GUI::windowSize);
+  // this->SetMinSize(GUI::windowSize);
+  // this->SetMaxSize(GUI::windowSize);
   // Setting menu items & status bar; list of standard IDs: https://docs.wxwidgets.org/3.0/page_stockitems.html
   wxMenu *menuFile = new wxMenu;
   menuFile->Append(ID::Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
