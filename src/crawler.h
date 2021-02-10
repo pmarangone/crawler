@@ -40,15 +40,35 @@ class CrawlingRobot {
                       double armDegree, double handDegree);
   void draw(double stepCount, double stepDelay);
 
+  /* Canvas */
+  double velAvg;
+  double lastStep;
+
+  /* Arm and Hand Degrees */
   double _armAngle;
   double _handAngle;
+
   double _maxArmAngle;
   double _minArmAngle;
   double _maxHandAngle;
   double _minHandAngle;
 
+  double _oldArmDegree;
+  double _oldHandDegree;
+
+  /* Robot Body */
+  double _robotWidth;
+  double _robotHeight;
   Position _robotPos;
-  std::queue<int> _positions;
+
+  /* Robot Arm */
+  double _armLength;
+
+  /* Robot Hand */
+  double _handLength;
+
+  // first-in first-out behavior
+  std::deque<int> _positions;
 };
 
 class CrawlingRobotEnvironment {
