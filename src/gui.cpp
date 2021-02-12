@@ -98,14 +98,17 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos = GUI::windowPosi
   wxSizer *sizerGamma = new wxBoxSizer(wxHORIZONTAL);
   wxSizer *sizerAlpha = new wxBoxSizer(wxHORIZONTAL);
 
-  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("\u03B5++")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("\u03B5--")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerEpsilon->Add(new wxStaticText(panelBottom, wxID_ANY, wxT("Epsilon: 0.5")), 0, wxALIGN_CENTER_VERTICAL, 0);
+  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY,  wxString::FromUTF8("\u03B3++")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY,  wxString::FromUTF8("\u03B3--")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY,  wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerGamma->Add(new wxStaticText(panelBottom, wxID_ANY, wxT("Learning Rate: 1")), 0, wxALIGN_CENTER_VERTICAL, 0);
+  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY,  wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("\u03B1++")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("\u03B1--")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerAlpha->Add(new wxStaticText(panelBottom, wxID_ANY, wxT("Discount: 1")), 0, wxALIGN_CENTER_VERTICAL, 0);
+  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
   sizerBottomCH->Add(sizerEpsilon, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
   sizerBottomCH->Add(sizerGamma, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
