@@ -52,6 +52,13 @@ class MainFrame : public wxFrame {
   // Misc
   void OnSize(wxSizeEvent &);
   // void OnIdle(wxIdleEvent &);
+  // Update values
+  void OnPlus(wxCommandEvent& event);
+  void OnMinus(wxCommandEvent& event);
+
+  wxStaticText *_learningRateText, *_discoutText, *_epsilonText;
+  double _learningRate = 1, _discount = 1, _epsilon = 0.5;
+
   wxDECLARE_EVENT_TABLE();  // event table declaration for this particular class
   // Variables
   std::unique_ptr<Graphics> _graphics;

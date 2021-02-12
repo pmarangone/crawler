@@ -4,7 +4,14 @@
 enum ID {  // No need to implement "About" and "Exit" (auto)
   Hello = wxID_LAST + 1,
   BTN_RUN,
-  BTN_STOP
+  BTN_STOP,
+  BTN_LEARNING_RATE_PLUS,
+  BTN_LEARNING_RATE_MINUS,
+  BTN_DISCOUNT_PLUS,
+  BTN_DISCOUNT_MINUS,
+  BTN_EPSILON_PLUS,
+  BTN_EPSILON_MINUS
+
 };
 
 // Custom event table for MainFrame class where events are routed to their respective handler functions
@@ -15,6 +22,12 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
   EVT_MENU(wxID_ABOUT, MainFrame::OnAbout)
 	EVT_BUTTON(ID::BTN_RUN, MainFrame::OnClickRun)	// run btn mouse click
 	EVT_BUTTON(ID::BTN_STOP, MainFrame::OnClickStop)	// stop btn mouse click
+	EVT_BUTTON(ID::BTN_LEARNING_RATE_PLUS, MainFrame::OnPlus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
+	EVT_BUTTON(ID::BTN_LEARNING_RATE_MINUS, MainFrame::OnMinus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
+	EVT_BUTTON(ID::BTN_DISCOUNT_PLUS, MainFrame::OnPlus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
+	EVT_BUTTON(ID::BTN_DISCOUNT_MINUS, MainFrame::OnMinus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
+	EVT_BUTTON(ID::BTN_EPSILON_PLUS, MainFrame::OnPlus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
+	EVT_BUTTON(ID::BTN_EPSILON_MINUS, MainFrame::OnMinus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
 	EVT_BUTTON(wxID_ANY, MainFrame::OnClick) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
   // EVT_SIZE(MainFrame::OnSize)
   // EVT_IDLE(MainFrame::OnIdle)
@@ -95,24 +108,27 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos = GUI::windowPosi
 
   // Three sizers for grouped variable controls
   wxSizer *sizerEpsilon = new wxBoxSizer(wxHORIZONTAL);
-  wxSizer *sizerGamma = new wxBoxSizer(wxHORIZONTAL);
-  wxSizer *sizerAlpha = new wxBoxSizer(wxHORIZONTAL);
+  wxSizer *sizerLearningRate = new wxBoxSizer(wxHORIZONTAL);
+  wxSizer *sizerDiscount = new wxBoxSizer(wxHORIZONTAL);
 
-  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerEpsilon->Add(new wxStaticText(panelBottom, wxID_ANY, wxT("Epsilon: 0.5")), 0, wxALIGN_CENTER_VERTICAL, 0);
-  sizerEpsilon->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  _epsilonText = new wxStaticText(panelBottom, wxID_ANY, wxT("  Epsilon:   \n    0.5"));
+  sizerEpsilon->Add(new wxButton(panelBottom, BTN_EPSILON_MINUS, wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerEpsilon->Add(_epsilonText, 0, wxALIGN_CENTER_VERTICAL, 0);
+  sizerEpsilon->Add(new wxButton(panelBottom, BTN_EPSILON_PLUS, wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY,  wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerGamma->Add(new wxStaticText(panelBottom, wxID_ANY, wxT("Learning Rate: 1")), 0, wxALIGN_CENTER_VERTICAL, 0);
-  sizerGamma->Add(new wxButton(panelBottom, wxID_ANY,  wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  _learningRateText = new wxStaticText(panelBottom, wxID_ANY, wxT("Learning Rate:\n\t1.0"));
+  sizerLearningRate->Add(new wxButton(panelBottom,BTN_LEARNING_RATE_MINUS,  wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerLearningRate->Add(_learningRateText, 0, wxALIGN_CENTER_VERTICAL, 0);
+  sizerLearningRate->Add(new wxButton(panelBottom, BTN_LEARNING_RATE_PLUS,  wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerAlpha->Add(new wxStaticText(panelBottom, wxID_ANY, wxT("Discount: 1")), 0, wxALIGN_CENTER_VERTICAL, 0);
-  sizerAlpha->Add(new wxButton(panelBottom, wxID_ANY, wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  _discoutText = new wxStaticText(panelBottom, wxID_ANY, wxT("   Discount:    \n\t1.0"));
+  sizerDiscount->Add(new wxButton(panelBottom, BTN_DISCOUNT_MINUS, wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  sizerDiscount->Add(_discoutText, 0, wxALIGN_CENTER_VERTICAL, 0);
+  sizerDiscount->Add(new wxButton(panelBottom, BTN_DISCOUNT_PLUS, wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
   sizerBottomCH->Add(sizerEpsilon, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
-  sizerBottomCH->Add(sizerGamma, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
-  sizerBottomCH->Add(sizerAlpha, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
+  sizerBottomCH->Add(sizerLearningRate, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
+  sizerBottomCH->Add(sizerDiscount, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
 
   sizerBottomCV->Add(sizerBottomCH, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 20);
 
@@ -183,4 +199,72 @@ void MainFrame::OnPaint(wxPaintEvent& event) {
 
 void MainFrame::OnTimer(wxTimerEvent& event) {
   _graphics->RebuildBufferAndRefresh();
+}
+
+void MainFrame::OnPlus(wxCommandEvent &event) {
+  int id = event.GetId();
+  switch(id) {
+    case BTN_EPSILON_PLUS:
+    {
+      _epsilon += 0.1;
+      std::string temp = std::to_string(_epsilon);
+      temp = temp.substr(0, 4);
+      _epsilonText->SetLabel(wxT("  Epsilon:   \n    ") + temp);
+      _epsilonText->Layout();
+      break; 
+    }
+    case BTN_LEARNING_RATE_PLUS:
+    {
+      _learningRate += 0.1;
+      std::string temp = std::to_string(_learningRate);
+      temp = temp.substr(0, 4);
+      _learningRateText->SetLabel(wxT("Learning Rate:\n\t") + temp);
+      _learningRateText->Layout();
+      break; 
+    }
+    case BTN_DISCOUNT_PLUS:
+    {
+      _discount += 0.1;
+      std::string temp = std::to_string(_discount);
+      temp = temp.substr(0, 4);
+      _discoutText->SetLabel(wxT("   Discount:    \n\t" + temp));
+      break;
+    }
+    default: 
+        std::cout << "Error: OnPlus\n";
+  }  
+}
+
+void MainFrame::OnMinus(wxCommandEvent & event) {
+  int id = event.GetId();
+  switch(id) {
+    case BTN_EPSILON_MINUS:
+    {
+      _epsilon -= 0.1;
+      std::string temp = std::to_string(_epsilon);
+      temp = temp.substr(0, 4);
+      _epsilonText->SetLabel(wxT("  Epsilon:   \n    ") + temp);
+      _epsilonText->Layout();
+      break; 
+    }
+    case BTN_LEARNING_RATE_MINUS:
+    {
+      _learningRate -= 0.1;
+      std::string temp = std::to_string(_learningRate);
+      temp = temp.substr(0, 4);
+      _learningRateText->SetLabel(wxT("Learning Rate:\n\t") + temp);
+      _learningRateText->Layout();
+      break; 
+    }
+    case BTN_DISCOUNT_MINUS:
+    {
+      _discount -= 0.1;
+      std::string temp = std::to_string(_discount);
+      temp = temp.substr(0, 4);
+      _discoutText->SetLabel(wxT("   Discount:    \n\t" + temp));
+      break;
+    }
+    default: 
+        std::cout << "Error: OnMinus\n";
+  }  
 }
