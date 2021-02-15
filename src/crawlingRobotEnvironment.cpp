@@ -9,21 +9,21 @@ CrawlingRobotEnvironment::~CrawlingRobotEnvironment() { ; }
 CrawlingRobotEnvironment::CrawlingRobotEnvironment(
     CrawlingRobot crawlingRobot) {
   _crawlingRobot = std::make_unique<CrawlingRobot>();
-  std::pair<int, int> minMaxArmAngles = _crawlingRobot->GetMinAndMaxArmAngles();
-  std::pair<int, int> minMaxHandAngles =
-      _crawlingRobot->GetMinAndMaxHandAngles();
 
-  double armIncrement =
-      (minMaxArmAngles.second - minMaxArmAngles.first) / (_nArmStates - 1);
-  double handIncrement =
-      (minMaxHandAngles.second - minMaxHandAngles.first) / (_nHandStates - 1);
+  double minArmAngle, maxArmAngle, minHandAngle, maxHandAngle;
+
+  std::tie(minArmAngle, maxArmAngle) = _crawlingRobot->GetMinAndMaxArmAngles();
+  std::tie(minHandAngle, maxHandAngle) = _crawlingRobot->GetMinAndMaxHandAngles();
+
+  double armIncrement = (maxArmAngle - minArmAngle) / (_nArmStates - 1);
+  double handIncrement = (maxHandAngle - minHandAngle) / (_nHandStates - 1);
 
   for (int i = 0; i < _nArmStates; i++) {
-    _armBuckets.push_back(minMaxArmAngles.first + (armIncrement * i));
+    _armBuckets.push_back(minArmAngle + (armIncrement * i));
   }
 
   for (int i = 0; i < _nHandStates; i++) {
-    _handBuckets.push_back(minMaxHandAngles.first + (handIncrement * i));
+    _handBuckets.push_back(minHandAngle + (handIncrement * i));
   }
 
   Reset();
@@ -55,9 +55,8 @@ std::pair<State, double> CrawlingRobotEnvironment::doAction(
   double armBucket = _state.armBucket;
   double handBucket = _state.handBucket;
 
-  std::pair<int, int> angles = _crawlingRobot->GetAngles();
-  double armAngle = angles.first;
-  double handAngle = angles.second;
+  double armAngle, handAngle;
+  std::tie(armAngle, handAngle) = _crawlingRobot->GetAngles();
 
   if (action == "arm-up") {
     double newArmAngle = _armBuckets[armBucket + 1];
