@@ -4,13 +4,65 @@ Tentative TODOs:
 - Learn how to work with pixels in WxWidgets
   a) Use WxWidgets
   b) Integrate SDL2 into WxWidgets GUI
+
 - Build GUI
   + Create top and bottom panels
   + Add two buttons: ["run", "stop"] + see other buttons needed
+  + Make the bottom control panel neat:
+    + Step delay, discount, epsilon, learning rate
+    + Create output fields / text fields with background
+    + Round edges of spin controls: (canceled)
+      + SetThemeEnabled
+      + SetExtraStyle, SetWindowStyleFlag, SetWindowStyle
+      + SetLayoutDirection, SetWindowVariant
+    - Wire up controls:
+      + Create and connect IDs and functions
+      + Set increment step sizes
+      + Set default values (through CrawlingRobot)
+      + Set min/max ranges
+      + Read values from spin controls
+      + Pass values from spin controls to CrawlingRobot class instance living in the MainFrame (_robot)
+      - Repair the bug: clicking on the panel makes num * 1000:
+        - Try the following:
+          + AcceptsFocusFromKeyboard()
+          + SetCanFocus(false)
+          + Freeze()
+          - wxTextCtrl / wxSpinCtrlDouble inherited functions:
+            - SendDestroyEvent
+            - OnSetFocus
+            - OnKillFocus
+            - OnTextLostFocus
+            - OnFocus
+            - DisableFocusFromKeyboard
+            - OSXSimulateFocusEvents
+        - Cout event name when a panel clicked after incrementing a spin control (change to wxTextCtrl happens on unfocus)
+
+  + Refactor panels:
+    + Move all three panels to panels.h (canceled)
+    + Create two polymorph classes from wxPanel (TopPanel, BottomPanel) (canceled)
+    + Set controls ownership to the parent class
+    + Destroy spin controls in the parent class destructor (bottom panel) (canceled)
+    + Destroy btn controls in the parent class destructor (top panel) (canceled)
+    + Destroy panels in the parent class destructor
+  + Ownership of control variables:
+    + Move _learningRate, _discount and _epsilon to CrawlingRobot
+    + Transfer data to CrawlingRobot class
+    + Make control handles private class members
+  + Abstract away layout initialization process
+    + Split 
+
 - Create graphics:
-  - Window
-    - Switch to smart pointers
-    - Implement rule of five for Graphics
-  - Crawler's body
+  + Create bitmap frame:
+    + Implement rule of five for Graphics
+    + Switch _graphics to smart pointers
+  - Render static floor
+  - Crawler's body:
+    - Create robot's body dimensions
     - Create a function Body::walk() where the crawler walks automatically; for reference: https://github.com/rwwaskk/CS188-Berkeley/blob/master/reinforcement/crawler.py
 - 
+
+
+
+***
+- Interesting resources:
+  - Maps: https://blog.udacity.com/2020/03/c-maps-explained.html
