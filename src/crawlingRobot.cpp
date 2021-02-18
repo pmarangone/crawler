@@ -145,4 +145,37 @@ double CrawlingRobot::Displacement(double oldArmDegree, double oldHandDegree,
 }
 
 // TODO: decide how draw function is implemented
-void CrawlingRobot::draw(double stepCount, double stepDelay){};
+void CrawlingRobot::Draw(double stepCount, double stepDelay){};
+
+
+
+// Getters & setters for control variables (spin controls)
+double CrawlingRobot::GetLearningRate() {
+  return this->_learningRate;
+}
+double CrawlingRobot::GetStepDelay() {
+  return this->_stepDelay;
+}
+double CrawlingRobot::GetDiscount() {
+  return this->_discount;
+}
+double CrawlingRobot::GetEpsilon() {
+  return this->_epsilon;
+}
+
+void CrawlingRobot::SetLearningRate(double learningRate) {
+  this->_learningRate = learningRate;
+  std::cout << "Robot's _learningRate: " << this->_learningRate << std::endl;  // TODO(SK): delete when tested
+}
+void CrawlingRobot::SetStepDelay(double stepDelay) {
+  this->_stepDelay = stepDelay;
+  std::cout << "Robot's _stepDelay: " << this->_stepDelay << std::endl;  // TODO(SK): delete when tested
+}
+void CrawlingRobot::SetDiscount(double discount) {
+  this->_discount = discount;
+  std::cout << "Robot's _discount: " << this->_discount << std::endl;  // TODO(SK): delete when tested
+}
+void CrawlingRobot::SetEpsilon(double epsilon) {
+  this->_epsilon = epsilon;
+  std::cout << "Robot's _epsilon: " << this->_epsilon << std::endl;  // TODO(SK): delete when tested
+}

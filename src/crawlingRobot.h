@@ -38,7 +38,18 @@ class CrawlingRobot {
   /* */
   double Displacement(double oldArmDegree, double oldHandDegree,
                       double armDegree, double handDegree);
-  void draw(double stepCount, double stepDelay);
+  void Draw(double stepCount, double stepDelay);
+
+  // Getters & setters for control variables (spin controls)
+  double GetLearningRate();
+  double GetStepDelay();
+  double GetDiscount();
+  double GetEpsilon();
+
+  void SetLearningRate(double learningRate);
+  void SetStepDelay(double stepDelay);
+  void SetDiscount(double discount);
+  void SetEpsilon(double epsilon);
 
   /* Canvas */
   double velAvg;
@@ -69,5 +80,11 @@ class CrawlingRobot {
 
   // first-in first-out behavior
   std::deque<int> _positions;
-};
 
+ private:
+  // Control variables (passed into the GUI's spin control panel)
+  double _learningRate{0.8};
+  double _stepDelay{0.5};
+  double _discount{0.8};
+  double _epsilon{0.5};
+};
