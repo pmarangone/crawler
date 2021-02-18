@@ -12,7 +12,6 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets 
 - [x] Choose best suitable libraries
   - [x] a) Use WxWidgets for GUI
   - [x] b) [Integrate](http://code.technoplaza.net/wx-sdl/) SDL2 (graphics) into WxWidgets GUI (CANCELED)
-
 - [ ] Build GUI
   - [x] Create top and bottom panels
   - [x] Add two buttons: ["run", "stop"] + see other buttons needed
@@ -44,7 +43,6 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets 
             - [ ] DisableFocusFromKeyboard
             - [ ] OSXSimulateFocusEvents
         - [ ] Cout event name when a panel clicked after incrementing a spin control (change to wxTextCtrl happens on unfocus)
-
   - [x] Refactor panels:
     - [x] Move all three panels to panels.h (canceled)
     - [x] Create two polymorph classes from wxPanel (TopPanel, BottomPanel) (canceled)
@@ -60,8 +58,7 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets 
     - [x] Create menu initialization function
     - [x] Create panel initialization function
     - [x] Create app layout initialization function
-
-- Create graphics:
+- [ ] Create graphics:
   - [x] Embed a bitmap frame into the main window:
     - [x] Implement rule of five for Graphics
     - [x] Switch _graphics to smart pointers
