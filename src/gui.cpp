@@ -1,35 +1,18 @@
 #include "gui.h"
 
-// Unique menu command identifiers (regardless of the class)
-enum ID {  // No need to implement "About" and "Exit" (auto)
-  Hello = wxID_LAST + 1,
-  BTN_RUN,
-  BTN_STOP,
-  BTN_LEARNING_RATE_PLUS,
-  BTN_LEARNING_RATE_MINUS,
-  BTN_DISCOUNT_PLUS,
-  BTN_DISCOUNT_MINUS,
-  BTN_EPSILON_PLUS,
-  BTN_EPSILON_MINUS
-
-};
-
 // Custom event table for MainFrame class where events are routed to their respective handler functions
 // clang-format off
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
-  EVT_MENU(ID::Hello, MainFrame::OnHello)
+  // Menu
+  EVT_MENU(ID::MENU_HELLO, MainFrame::OnHello)
   EVT_MENU(wxID_EXIT, MainFrame::OnExit)
   EVT_MENU(wxID_ABOUT, MainFrame::OnAbout)
+  // Buttons
 	EVT_BUTTON(ID::BTN_RUN, MainFrame::OnClickRun)	// run btn mouse click
 	EVT_BUTTON(ID::BTN_STOP, MainFrame::OnClickStop)	// stop btn mouse click
-	EVT_BUTTON(ID::BTN_LEARNING_RATE_PLUS, MainFrame::OnPlus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
-	EVT_BUTTON(ID::BTN_LEARNING_RATE_MINUS, MainFrame::OnMinus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
-	EVT_BUTTON(ID::BTN_DISCOUNT_PLUS, MainFrame::OnPlus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
-	EVT_BUTTON(ID::BTN_DISCOUNT_MINUS, MainFrame::OnMinus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
-	EVT_BUTTON(ID::BTN_EPSILON_PLUS, MainFrame::OnPlus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
-	EVT_BUTTON(ID::BTN_EPSILON_MINUS, MainFrame::OnMinus) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
-	EVT_BUTTON(wxID_ANY, MainFrame::OnClick) // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
-  // EVT_SIZE(MainFrame::OnSize)
+	EVT_BUTTON(wxID_ANY, MainFrame::OnClick)  // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
+  // Controls
+  EVT_SPINCTRLDOUBLE(wxID_ANY, MainFrame::OnSpinCtrl)
   // EVT_IDLE(MainFrame::OnIdle)
 wxEND_EVENT_TABLE()
 ;  // clang-format on
@@ -37,123 +20,179 @@ wxEND_EVENT_TABLE()
 // Main window
 
 // Constructor for a non-resizable window (use wxDEFAULT_FRAME_STYLE style for a resizable window)
-MainFrame::MainFrame(const wxString &title, const wxPoint &pos = GUI::windowPosition, const wxSize &size = GUI::windowSize, long style = GUI::windowStyle) 
-                    : wxFrame(NULL, wxID_ANY, title, pos, size, style, title), _graphics(nullptr) {
-  // Setting min & max size (to force no-resize option for Linux & Windows)
-  // this->SetMinSize(GUI::windowSize);
-  // this->SetMaxSize(GUI::windowSize);
-  // Setting menu items & status bar; list of standard IDs: https://docs.wxwidgets.org/3.0/page_stockitems.html
-  wxMenu *menuFile = new wxMenu;
-  menuFile->Append(ID::Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
-  menuFile->AppendSeparator();
-  menuFile->Append(wxID_EXIT);
-  wxMenu *menuHelp = new wxMenu;
-  menuHelp->Append(wxID_ABOUT);
-  // Including all menu items created into the menu bar
-  wxMenuBar *menuBar = new wxMenuBar;
-  menuBar->Append(menuFile, "&File");
-  menuBar->Append(menuHelp, "&Help");
-  SetMenuBar(menuBar);
+MainFrame::MainFrame(const wxString &title, const wxPoint &pos = GUI::windowPosition, const wxSize &size = GUI::windowSize, long style = GUI::windowStyleNonResizable)
+    : wxFrame(NULL, wxID_ANY, title, pos, size, style),
+      _graphics(nullptr),
+      _robot(std::make_unique<CrawlingRobot>()) {
+
+  // GUI initialization:
+  // Init menu
+  this->InitMenu();
+  // Init control panels
+  this->InitPanelTop();
+  this->InitPanelBottom();
+  this->InitPanelGraphics();
+  // Fit all GUI elements into the main app window
+  this->InitAppLayout();
+
+  // Graphics; TODO(SK): move to a separate function
+  // Set timer for bitmap demo
+  this->_graphics->SetTimerOwner(this);
+  this->_graphics->StartTimer(17);
+  this->Bind(wxEVT_TIMER, &MainFrame::OnTimer, this);
+}
+
+MainFrame::~MainFrame() {
+  // TODO(SK): Destroy panels and all its children manually, if wxWidgets doesn't automatically (https://docs.wxwidgets.org/trunk/overview_windowdeletion.html)
+  // Destroy spin controls, e.g.:
+  // if (this->_ctrlLearningRate != nullptr) {
+  //   this->_ctrlLearningRate->Destroy();
+  // }
+}
+
+// GUI initializers
+void MainFrame::InitMenu() {
+  // Init new menu bar
+  this->_menuBar = new wxMenuBar;
+  // Set menu items & status bar; list of standard IDs: https://docs.wxwidgets.org/3.0/page_stockitems.html
+  this->_menuFile = new wxMenu;
+  this->_menuFile->Append(ID::MENU_HELLO, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
+  this->_menuFile->AppendSeparator();
+  this->_menuFile->Append(wxID_EXIT);
+  this->_menuHelp = new wxMenu;
+  this->_menuHelp->Append(wxID_ABOUT);
+  // Include all menu items created into the menu bar
+  this->_menuBar->Append(this->_menuFile, "&File");
+  this->_menuBar->Append(this->_menuHelp, "&Help");
+  SetMenuBar(this->_menuBar);
   // Status bar in the bottom of the main window
   CreateStatusBar();
   SetStatusText("Reinforcement Learning: Crawler CS188");
+};
 
-  // Contol panels
-  wxPanel *panelTop = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::topPanelHeight));
-  panelTop->SetBackgroundColour(wxColour(100, 200, 200));
-  wxPanel *panelTopCH = new wxPanel(panelTop, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::topPanelHeight));
+void MainFrame::InitPanelTop() {
+  // Create the top panel
+  this->_panelTop = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::topPanelHeight));
+  this->_panelTop->SetBackgroundColour(GUI::topPanelBgrColor);
+  this->_panelTopCH = new wxPanel(this->_panelTop, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::topPanelHeight));
   // panelTopCH->SetBackgroundColour(wxColour(100, 200, 200));
-  wxPanel *panelMiddle = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::bitmapHeight));
-  panelMiddle->SetBackgroundColour(wxColour(233, 233, 233));
-  wxPanel *panelBottom = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::bottomPanelHeight));
-  panelBottom->SetBackgroundColour(wxColour(100, 100, 200));
-  wxPanel *panelBottomCH = new wxPanel(panelBottom, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::bottomPanelHeight));
-
-  // Main vertical sizer
-  wxBoxSizer *sizerMain = new wxBoxSizer(wxVERTICAL);
-  sizerMain->Add(panelTop, 0, wxEXPAND);
-  sizerMain->Add(panelMiddle, 1, wxEXPAND);
-  sizerMain->Add(panelBottom, 0, wxEXPAND);
 
   // Top sizer (nested)
-  wxSizer *sizerTopCV = new wxBoxSizer(wxVERTICAL);
-  wxSizer *sizerTopCH = new wxBoxSizer(wxHORIZONTAL);
+  this->_sizerTopCV = new wxBoxSizer(wxVERTICAL);
+  this->_sizerTopCH = new wxBoxSizer(wxHORIZONTAL);
 
   // Three sizers for behavior controls
-  wxSizer *sizerMotion = new wxBoxSizer(wxHORIZONTAL);
-  wxSizer *sizerSteps = new wxBoxSizer(wxHORIZONTAL);
-  wxSizer *sizerReset = new wxBoxSizer(wxHORIZONTAL);
+  this->_sizerMotion = new wxBoxSizer(wxHORIZONTAL);
+  this->_sizerSteps = new wxBoxSizer(wxHORIZONTAL);
+  this->_sizerReset = new wxBoxSizer(wxHORIZONTAL);
 
   // sizerTopCH->Add(panelTopCH, 1, wxALIGN_CENTER);
-  sizerMotion->Add(new wxButton(panelTop, ID::BTN_RUN, wxString::FromUTF8("Run \u25B6")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerMotion->Add(new wxButton(panelTop, ID::BTN_STOP, wxString::FromUTF8("Stop \u25FC")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerMotion->Add(new wxButton(this->_panelTop, ID::BTN_RUN, wxString::FromUTF8("Run \u25B6")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerMotion->Add(new wxButton(this->_panelTop, ID::BTN_STOP, wxString::FromUTF8("Stop \u25FC")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  sizerSteps->Add(new wxButton(panelTop, wxID_ANY, "Skip 30K steps"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerSteps->Add(new wxButton(panelTop, wxID_ANY, "Skip 1000K steps"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerSteps->Add(new wxButton(this->_panelTop, wxID_ANY, "Skip 30K steps"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerSteps->Add(new wxButton(this->_panelTop, wxID_ANY, "Skip 1000K steps"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  sizerReset->Add(new wxButton(panelTop, wxID_ANY, "Reset speed counter"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerReset->Add(new wxButton(panelTop, wxID_ANY, "Reset Q"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerReset->Add(new wxButton(this->_panelTop, wxID_ANY, "Reset speed counter"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerReset->Add(new wxButton(this->_panelTop, wxID_ANY, "Reset Q"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  sizerTopCH->Add(sizerMotion, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerTopCH->Add(sizerSteps, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerTopCH->Add(sizerReset, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerTopCH->Add(this->_sizerMotion, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerTopCH->Add(this->_sizerSteps, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerTopCH->Add(this->_sizerReset, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  sizerTopCV->Add(sizerTopCH, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 20);
+  this->_sizerTopCV->Add(_sizerTopCH, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 20);
 
-  panelTop->SetSizerAndFit(sizerTopCV);
+  this->_panelTop->SetSizerAndFit(this->_sizerTopCV);
+};
+
+void MainFrame::InitPanelBottom() {
+  // Create the bottom panel
+  this->_panelBottom = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::bottomPanelHeight));
+  this->_panelBottom->SetBackgroundColour(GUI::bottomPanelBgrColor);
+  this->_panelBottomCH = new wxPanel(this->_panelBottom, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::bottomPanelHeight));
 
   // Bottom sizer (nested)
-  wxSizer *sizerBottomCV = new wxBoxSizer(wxVERTICAL);
-  wxSizer *sizerBottomCH = new wxBoxSizer(wxHORIZONTAL);
+  this->_sizerBottomCV = new wxBoxSizer(wxVERTICAL);
+  this->_sizerBottomCH = new wxBoxSizer(wxHORIZONTAL);
 
-  // Three sizers for grouped variable controls
-  wxSizer *sizerEpsilon = new wxBoxSizer(wxHORIZONTAL);
-  wxSizer *sizerLearningRate = new wxBoxSizer(wxHORIZONTAL);
-  wxSizer *sizerDiscount = new wxBoxSizer(wxHORIZONTAL);
+  // Four sizers for grouped variable controls
+  this->_sizerStepDelay = new wxBoxSizer(wxHORIZONTAL);
+  this->_sizerEpsilon = new wxBoxSizer(wxHORIZONTAL);
+  this->_sizerDiscount = new wxBoxSizer(wxHORIZONTAL);
+  this->_sizerLearningRate = new wxBoxSizer(wxHORIZONTAL);
 
-  _epsilonText = new wxStaticText(panelBottom, wxID_ANY, wxT("  Epsilon:   \n    0.5"));
-  sizerEpsilon->Add(new wxButton(panelBottom, BTN_EPSILON_MINUS, wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerEpsilon->Add(_epsilonText, 0, wxALIGN_CENTER_VERTICAL, 0);
-  sizerEpsilon->Add(new wxButton(panelBottom, BTN_EPSILON_PLUS, wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  // Control variables (TODO(SK): move to panels.h)
+  // wxSpinCtrlDouble *ctrlLearningRate = new wxSpinCtrlDouble(panelBottom, ID::SPIN_LEARNINGRATE, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_WRAP, 0.0, 1.0, 0.8, 0.05);
+  this->_ctrlLearningRate = new wxSpinCtrlDouble(_panelBottom, ID::SPIN_LEARNINGRATE);
+  this->_ctrlStepDelay = new wxSpinCtrlDouble(_panelBottom, ID::SPIN_STEPDELAY);
+  this->_ctrlDiscount = new wxSpinCtrlDouble(_panelBottom, ID::SPIN_DISCOUNT);
+  this->_ctrlEpsilon = new wxSpinCtrlDouble(_panelBottom, ID::SPIN_EPSILON);
 
-  _learningRateText = new wxStaticText(panelBottom, wxID_ANY, wxT("Learning Rate:\n\t1.0"));
-  sizerLearningRate->Add(new wxButton(panelBottom,BTN_LEARNING_RATE_MINUS,  wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerLearningRate->Add(_learningRateText, 0, wxALIGN_CENTER_VERTICAL, 0);
-  sizerLearningRate->Add(new wxButton(panelBottom, BTN_LEARNING_RATE_PLUS,  wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_ctrlLearningRate->SetDigits(3);  // sets precision of the value of the spin control.
+  this->_ctrlLearningRate->SetIncrement(0.05);
+  this->_ctrlLearningRate->SetValue(this->_robot->GetLearningRate());
 
-  _discoutText = new wxStaticText(panelBottom, wxID_ANY, wxT("   Discount:    \n\t1.0"));
-  sizerDiscount->Add(new wxButton(panelBottom, BTN_DISCOUNT_MINUS, wxString::FromUTF8("-")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  sizerDiscount->Add(_discoutText, 0, wxALIGN_CENTER_VERTICAL, 0);
-  sizerDiscount->Add(new wxButton(panelBottom, BTN_DISCOUNT_PLUS, wxString::FromUTF8("+")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_ctrlStepDelay->SetDigits(3);
+  this->_ctrlStepDelay->SetIncrement(0.05);
+  this->_ctrlStepDelay->SetValue(this->_robot->GetStepDelay());
 
-  sizerBottomCH->Add(sizerEpsilon, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
-  sizerBottomCH->Add(sizerLearningRate, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
-  sizerBottomCH->Add(sizerDiscount, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 15);
+  this->_ctrlDiscount->SetDigits(3);
+  this->_ctrlDiscount->SetRange(0.0, 1.0);
+  this->_ctrlDiscount->SetIncrement(0.05);
+  this->_ctrlDiscount->SetValue(this->_robot->GetDiscount());
 
-  sizerBottomCV->Add(sizerBottomCH, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 20);
+  this->_ctrlEpsilon->SetDigits(3);
+  this->_ctrlEpsilon->SetRange(0.0, 1.0);
+  this->_ctrlEpsilon->SetIncrement(0.05);
+  this->_ctrlEpsilon->SetValue(this->_robot->GetEpsilon());
 
-  panelBottom->SetSizerAndFit(sizerBottomCV);
+  this->_sizerLearningRate->Add(new wxStaticText(this->_panelBottom, wxID_ANY, wxT("Learning Rate:")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 3);
+  this->_sizerLearningRate->Add(this->_ctrlLearningRate, 0, wxALIGN_CENTER, 0);
+  this->_sizerStepDelay->Add(new wxStaticText(this->_panelBottom, wxID_ANY, wxT("Step Delay:")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 3);
+  this->_sizerStepDelay->Add(this->_ctrlStepDelay, 0, wxALIGN_CENTER, 0);
+  this->_sizerDiscount->Add(new wxStaticText(this->_panelBottom, wxID_ANY, wxT("Discount:")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 3);
+  this->_sizerDiscount->Add(this->_ctrlDiscount, 0, wxALIGN_CENTER, 0);
+  this->_sizerEpsilon->Add(new wxStaticText(this->_panelBottom, wxID_ANY, wxT("Epsilon:")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 3);
+  this->_sizerEpsilon->Add(this->_ctrlEpsilon, 0, wxALIGN_CENTER, 0);
 
+  this->_sizerBottomCH->Add(this->_sizerLearningRate, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerBottomCH->Add(this->_sizerStepDelay, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerBottomCH->Add(this->_sizerDiscount, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  this->_sizerBottomCH->Add(this->_sizerEpsilon, 1, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+
+  this->_sizerBottomCV->Add(this->_sizerBottomCH, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 20);
+
+  this->_panelBottom->SetSizerAndFit(this->_sizerBottomCV);
+};
+void MainFrame::InitPanelGraphics() {
+  // Create the graphics panel
+  this->_panelGraphics = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::bitmapHeight));
+  this->_panelGraphics->SetBackgroundColour(GUI::middlePanelBgrColor);
+  
   // Middle sizer – _graphics
-  _graphics = std::make_unique<Graphics>(panelMiddle, GUI::bitmapWidth, GUI::bitmapHeight);
-  _graphics->SetBackgroundStyle(wxBG_STYLE_PAINT);
-  _graphics->GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent though handle
+  this->_graphics = std::make_unique<Graphics>(this->_panelGraphics, GUI::bitmapWidth, GUI::bitmapHeight);
+  this->_graphics->SetBackgroundStyle(wxBG_STYLE_PAINT);
+  this->_graphics->GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent through handle
 
-  wxBoxSizer* sizerGraphics = new wxBoxSizer(wxVERTICAL);
-  sizerGraphics->Add(_graphics->GetRenderSurface(), 1, wxALIGN_CENTER);
-  panelMiddle->SetSizerAndFit(sizerGraphics);
+  this->_sizerGraphics = new wxBoxSizer(wxVERTICAL);
+  this->_sizerGraphics->Add(this->_graphics->GetRenderSurface(), 1, wxALIGN_CENTER);
+  this->_panelGraphics->SetSizerAndFit(this->_sizerGraphics);
   // Layout(); // resize element to cover the entire window: https://docs.wxwidgets.org/trunk/classwx_top_level_window.html#adfe7e3f4a32f3ed178968f64431bbfe0
 
-  _graphics->SetTimerOwner(this);
-  _graphics->StartTimer(17);
-  this->Bind(wxEVT_TIMER, &MainFrame::OnTimer, this);
+};
 
-  this->SetSizerAndFit(sizerMain);
+void MainFrame::InitAppLayout() {
+  // Main vertical sizer
+  this->_sizerMain = new wxBoxSizer(wxVERTICAL);
+  this->_sizerMain->Add(this->_panelTop, 0, wxEXPAND);
+  this->_sizerMain->Add(this->_panelGraphics, 1, wxEXPAND);
+  this->_sizerMain->Add(this->_panelBottom, 0, wxEXPAND);
+  this->SetSizerAndFit(this->_sizerMain);
 }
 
-MainFrame::~MainFrame() {}
 
-// Event handlers for MainFrame
+// All event handlers
+// Menu event handlers
 void MainFrame::OnExit(wxCommandEvent &event) {
   Close(true);
 }
@@ -166,6 +205,7 @@ void MainFrame::OnHello(wxCommandEvent &event) {
   wxLogMessage("Hello world from wxWidgets!");
 }
 
+// Button event handlers
 void MainFrame::OnClickRun(wxCommandEvent &event) {
   std::cout << "RUN btn clicked. ID: " << event.GetId() << std::endl;
 }
@@ -174,97 +214,55 @@ void MainFrame::OnClickStop(wxCommandEvent &event) {
   std::cout << "STOP btn clicked. ID: " << event.GetId() << std::endl;
 }
 
-// Mouse click for all btn
 void MainFrame::OnClick(wxCommandEvent &event) {  // for events objects deriving from wxCommandEvent, the events get propagated thru parent controls (current parent where e.g. a button is, i.e. widnow, panel, frame, etc.)
   std::cout << "Standard button clicked. ID: " << event.GetId() << std::endl;
   // event.Skip();  // force event propagation to the next EVT_BUTTON event in the table (omit, if you put EVT_BUTTON(wxID_ANY, MainFrame::OnClick) in the bottom of the event table)
 }
 
-// void MainFrame::OnSize(wxSizeEvent &event) {
-//   std::cout << "FRAME size event; height: " << event.GetSize().GetHeight() << "; width: " << event.GetSize().GetWidth() << std::endl;
-//   event.Skip();  // Should call skip to not mess with the default implementation of size handlers (wxWidgets handles size events internally)
-// }
+// Spin control event handlers
+void MainFrame::OnSpinCtrl(wxSpinDoubleEvent &event) {
+  const int id = event.GetId();
+  const double value = event.GetValue();
+  switch (id) {
+    case ID::SPIN_LEARNINGRATE: {
+      std::cout << "SPIN_LEARNINGRATE: "
+                << event.GetValue() << std::endl;
+      this->_robot->SetLearningRate(value);
+      break;
+    }
+    case ID::SPIN_STEPDELAY: {
+      std::cout << "SPIN_STEPDELAY: "
+                << event.GetValue() << std::endl;
+      this->_robot->SetStepDelay(value);
+      break;
+    }
+    case ID::SPIN_DISCOUNT: {
+      std::cout << "SPIN_DISCOUNT: "
+                << event.GetValue() << std::endl;
+      this->_robot->SetDiscount(value);
+      break;
+    }
+    case ID::SPIN_EPSILON: {
+      std::cout << "SPIN_EPSILON: "
+                << event.GetValue() << std::endl;
+      this->_robot->SetEpsilon(value);
+      break;
+    }
+    default:
+      std::cout << "General (unidentified) spin control" << std::endl;
+      // TODO(SK): handle or disable
+      event.StopPropagation();
+  }
+}
 
-// void MainFrame::OnIdle(wxIdleEvent &event) {
-//   // wxMessageBox("MainFrame::OnIdle");  // example of a popping dialog
-//   std::cout << "On idle event" << std::endl;
-// }
-
-void MainFrame::OnPaint(wxPaintEvent& event) {
-  wxPaintDC dc(_graphics->GetRenderSurface());  // TODO(SK): take a deeper look into rendering mechanism (Reminder for SK) 
+// Graphics handlers
+void MainFrame::OnPaint(wxPaintEvent &event) {
+  wxPaintDC dc(_graphics->GetRenderSurface());  // TODO(SK): take a deeper look into rendering mechanism (Reminder for SK)
   if (_graphics->GetBitmapBuffer()->IsOk()) {
     dc.DrawBitmap(*_graphics->GetBitmapBuffer(), 0, 0);
   }
 }
 
-void MainFrame::OnTimer(wxTimerEvent& event) {
+void MainFrame::OnTimer(wxTimerEvent &event) {
   _graphics->RebuildBufferAndRefresh();
-}
-
-void MainFrame::OnPlus(wxCommandEvent &event) {
-  int id = event.GetId();
-  switch(id) {
-    case BTN_EPSILON_PLUS:
-    {
-      _epsilon += 0.1;
-      std::string temp = std::to_string(_epsilon);
-      temp = temp.substr(0, 4);
-      _epsilonText->SetLabel(wxT("  Epsilon:   \n    ") + temp);
-      _epsilonText->Layout();
-      break; 
-    }
-    case BTN_LEARNING_RATE_PLUS:
-    {
-      _learningRate += 0.1;
-      std::string temp = std::to_string(_learningRate);
-      temp = temp.substr(0, 4);
-      _learningRateText->SetLabel(wxT("Learning Rate:\n\t") + temp);
-      _learningRateText->Layout();
-      break; 
-    }
-    case BTN_DISCOUNT_PLUS:
-    {
-      _discount += 0.1;
-      std::string temp = std::to_string(_discount);
-      temp = temp.substr(0, 4);
-      _discoutText->SetLabel(wxT("   Discount:    \n\t" + temp));
-      break;
-    }
-    default: 
-        std::cout << "Error: OnPlus\n";
-  }  
-}
-
-void MainFrame::OnMinus(wxCommandEvent & event) {
-  int id = event.GetId();
-  switch(id) {
-    case BTN_EPSILON_MINUS:
-    {
-      _epsilon -= 0.1;
-      std::string temp = std::to_string(_epsilon);
-      temp = temp.substr(0, 4);
-      _epsilonText->SetLabel(wxT("  Epsilon:   \n    ") + temp);
-      _epsilonText->Layout();
-      break; 
-    }
-    case BTN_LEARNING_RATE_MINUS:
-    {
-      _learningRate -= 0.1;
-      std::string temp = std::to_string(_learningRate);
-      temp = temp.substr(0, 4);
-      _learningRateText->SetLabel(wxT("Learning Rate:\n\t") + temp);
-      _learningRateText->Layout();
-      break; 
-    }
-    case BTN_DISCOUNT_MINUS:
-    {
-      _discount -= 0.1;
-      std::string temp = std::to_string(_discount);
-      temp = temp.substr(0, 4);
-      _discoutText->SetLabel(wxT("   Discount:    \n\t" + temp));
-      break;
-    }
-    default: 
-        std::cout << "Error: OnMinus\n";
-  }  
 }
