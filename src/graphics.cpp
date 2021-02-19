@@ -78,29 +78,29 @@ Graphics::~Graphics() {
 
 // Setters for graphics
 void Graphics::SetBackgroundStyle(wxBackgroundStyle style) {
-  this->_renderSurface->SetBackgroundStyle(style);
+  _renderSurface->SetBackgroundStyle(style);
 };
 // Setters for timer
 void Graphics::SetTimerOwner(wxFrame *frame) {
-  this->_timer.SetOwner(frame);
+  _timer.SetOwner(frame);
 };
 void Graphics::StartTimer(unsigned int t) {
-  this->_timer.Start(t);
+  _timer.Start(t);
 };
 
 // Getters
 wxWindow *Graphics::GetRenderSurface() {
-  return this->_renderSurface;
+  return _renderSurface;
 }
 wxBitmap *Graphics::GetBitmapBuffer() {
-  return &(this->_bitmapBuffer);
+  return &(_bitmapBuffer);
 }
 
 
 // Behavioral methods
 void Graphics::DrawToBuffer() {
-  wxPaintDC dc(this->_renderSurface);  // TODO(SK): take a deeper look into rendering mechanism (Reminder for SK)
-  if (this->_bitmapBuffer.IsOk()) {
+  wxPaintDC dc(_renderSurface);  // TODO(SK): take a deeper look into rendering mechanism (Reminder for SK)
+  if (_bitmapBuffer.IsOk()) {
     dc.DrawBitmap(_bitmapBuffer, 0, 0);
   }
 }
@@ -115,7 +115,7 @@ void Graphics::RebuildBufferAndRefresh() {
     }
   }
 
-  ++_curRGB;
+  ++(_curRGB);
   if (_curRGB > 255) {
     _curRGB = 0;
   }

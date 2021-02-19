@@ -63,7 +63,7 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets 
       - [ ] OSXSimulateFocusEvents
   - [ ] Cout event name when a panel clicked after incrementing a spin control (change to wxTextCtrl happens on unfocus)
 
-### Create graphics
+### Create Graphics
 
 - [x] Embed a bitmap frame into the main window:
   - [x] Implement rule of five for Graphics
