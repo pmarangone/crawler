@@ -13,7 +13,9 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 	EVT_BUTTON(wxID_ANY, MainFrame::OnClick)  // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
   // Controls
   EVT_SPINCTRLDOUBLE(wxID_ANY, MainFrame::OnSpinCtrl)
-
+  // Graphics
+  // EVT_PAINT(MainFrame::OnPaint)  // this is called inline via Bind() instead; see LaunchRenderer()
+  // Miscellaneous
   // EVT_IDLE(MainFrame::OnIdle)
 wxEND_EVENT_TABLE()
 ;  // clang-format on
@@ -35,19 +37,13 @@ MainFrame::MainFrame(const wxString &title,
   // Init control panels
   InitPanelTop();
   InitPanelBottom();
-  InitPanelGraphics();
-  // Fit all GUI elements into the main app window
-  InitAppLayout();
-
-  // Graphics; TODO(SK): move to a separate function
-  _graphics->SetBackgroundStyle(wxBG_STYLE_PAINT);
-  _graphics->GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent through handle
-
-  // Set timer for bitmap demo
-  _graphics->SetTimerOwner(this);
-  _graphics->StartTimer(17);
-  Bind(wxEVT_TIMER, &MainFrame::OnTimer, this);
+  InitPanelGraphics();  // both graphics panel and Graphics instance are initialized inside
+  InitAppLayout();  // fit all GUI elements into the main app window
+  // Launch renderer
+  LaunchRendererer();
 }
+
+
 
 MainFrame::~MainFrame() {
   // TODO(SK): Destroy panels and all its children manually, if wxWidgets doesn't automatically (https://docs.wxwidgets.org/trunk/overview_windowdeletion.html)
@@ -176,14 +172,18 @@ void MainFrame::InitPanelGraphics() {
   // Create the graphics panel
   _panelGraphics = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::bitmapHeight));
   _panelGraphics->SetBackgroundColour(GUI::middlePanelBgrColor);  // in case the bitmap width != window width
-  
-  // Middle sizer – _graphics
-  _graphics = std::make_unique<Graphics>(_panelGraphics, GUI::bitmapWidth, GUI::bitmapHeight);
+  // Declare a Graphics object's instance
+  InitGraphics(_panelGraphics);
+  // Create the graphics sizer and move _graphics in there
   _sizerGraphics = new wxBoxSizer(wxVERTICAL);
   _sizerGraphics->Add(_graphics->GetRenderSurface(), 1, wxALIGN_CENTER);
   _panelGraphics->SetSizerAndFit(_sizerGraphics);
   // Layout(); // resize element to cover the entire window: https://docs.wxwidgets.org/trunk/classwx_top_level_window.html#adfe7e3f4a32f3ed178968f64431bbfe0
 };
+
+void MainFrame::InitGraphics(wxPanel *parent) {
+  _graphics = std::make_unique<Graphics>(parent, GUI::bitmapWidth, GUI::bitmapHeight);
+}
 
 void MainFrame::InitAppLayout() {
   // Main vertical sizer
@@ -193,6 +193,30 @@ void MainFrame::InitAppLayout() {
   _sizerMain->Add(_panelBottom, 0, wxEXPAND);
   SetSizerAndFit(_sizerMain);
 }
+
+
+// Behavioral methods
+void MainFrame::LaunchRendererer() {
+  // Launch renderer
+  _graphics->GetRenderSurface()->Bind(wxEVT_PAINT, [this](wxPaintEvent) {
+    _graphics->DrawToBuffer();
+  });  // once called, OnPaint is triggered
+  // Set timer = wxWidgets' version of the while loop; see more here: https://docs.wxwidgets.org/trunk/classwx_timer.html
+  _graphics->SetTimerOwner(this);
+  _graphics->StartTimer(10, wxTIMER_CONTINUOUS);  // 17 = approx. 60 frames per second; 10 = 100 frames per second
+  Bind(wxEVT_TIMER, [this](wxTimerEvent) {
+    _graphics->RebuildBufferAndRefresh();
+  });
+}
+
+// Graphics handlers
+// void MainFrame::OnPaint(wxPaintEvent &event) {
+//   _graphics->DrawToBuffer();
+// }
+// void MainFrame::OnTimer(wxTimerEvent &event) {
+//   _graphics->RebuildBufferAndRefresh();
+// }
+
 
 
 // All event handlers
@@ -257,13 +281,4 @@ void MainFrame::OnSpinCtrl(wxSpinDoubleEvent &event) {
       // TODO(SK): handle or disable
       event.StopPropagation();
   }
-}
-
-// Graphics handlers
-void MainFrame::OnPaint(wxPaintEvent &event) {
-  _graphics->DrawToBuffer();
-}
-
-void MainFrame::OnTimer(wxTimerEvent &event) {
-  _graphics->RebuildBufferAndRefresh();
 }

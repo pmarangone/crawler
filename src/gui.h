@@ -61,7 +61,10 @@ class MainFrame : public wxFrame {
   void InitPanelTop();
   void InitPanelBottom();
   void InitPanelGraphics();
+  void InitGraphics(wxPanel *parent);
   void InitAppLayout();  // fits all panels and their nested sizers into the main sizer in the main frame
+  // Behavioral methods
+  void LaunchRendererer();
   // Event handlers – no need to be virtual nor public
   // Menu
   void OnHello(wxCommandEvent &event);
@@ -73,9 +76,6 @@ class MainFrame : public wxFrame {
   void OnClick(wxCommandEvent &event);
   // Spin controls
   void OnSpinCtrl(wxSpinDoubleEvent &event);  // handles all controls
-  // Graphics; TODO(SK): consider making this public to control graphics from outside
-  void OnPaint(wxPaintEvent &event);
-  void OnTimer(wxTimerEvent &event);
 
   // Private variables
   // Crawling robot

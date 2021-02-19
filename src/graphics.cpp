@@ -9,17 +9,19 @@ Graphics::Graphics() : _width(1),
                        _pixelData(nullptr) {}
 
 // Overloaded default constructor
-Graphics::Graphics(wxWindow *parent, int width, int height) : _width(width),
-                                                              _height(height),
-                                                              _curRGB(0),
-                                                              _pixelData(new unsigned char[3 * _width * _height]),
-                                                              _renderSurface(new wxWindow(parent,
-                                                                                          wxID_ANY, 
-                                                                                          wxDefaultPosition,
-                                                                                          wxSize(width, height))) {}
- 
+Graphics::Graphics(wxWindow *parent, int width, int height)
+    : _width(width),
+      _height(height),
+      _curRGB(0),
+      _pixelData(new unsigned char[3 * _width * _height]),
+      _renderSurface(new wxWindow(parent,
+                                  wxID_ANY,
+                                  wxDefaultPosition,
+                                  wxSize(width, height))) {
+  _renderSurface->SetBackgroundStyle(wxBG_STYLE_PAINT);
+}
 
-// Move constructor 
+// Move constructor
 Graphics::Graphics(Graphics &&source) {
   // Point variables / assign values
   _pixelData = source._pixelData;
@@ -76,16 +78,12 @@ Graphics::~Graphics() {
   std::cout << "_graphics deallocated: " << this << std::endl;
 }
 
-// Setters for graphics
-void Graphics::SetBackgroundStyle(wxBackgroundStyle style) {
-  _renderSurface->SetBackgroundStyle(style);
-};
 // Setters for timer
 void Graphics::SetTimerOwner(wxFrame *frame) {
   _timer.SetOwner(frame);
 };
-void Graphics::StartTimer(unsigned int t) {
-  _timer.Start(t);
+void Graphics::StartTimer(unsigned int t, bool oneShot) {  // t = milliseconds, oneSHot = wxTIMER_CONTINUOUS (while loop alternative) or wxTIMER_ONE_SHOT; https://docs.wxwidgets.org/trunk/classwx_timer.html
+  _timer.Start(t, oneShot);
 };
 
 // Getters
@@ -95,7 +93,6 @@ wxWindow *Graphics::GetRenderSurface() {
 wxBitmap *Graphics::GetBitmapBuffer() {
   return &(_bitmapBuffer);
 }
-
 
 // Behavioral methods
 void Graphics::DrawToBuffer() {
