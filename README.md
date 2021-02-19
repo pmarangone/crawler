@@ -69,7 +69,8 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets 
   - [x] Implement rule of five for Graphics
   - [x] Switch _graphics to smart pointers
 - [ ] Learn wxWidgets' bitmap and rendering mechanism under the hood:
-  - [ ] [wxDC](https://docs.wxwidgets.org/3.1.4/classwx_d_c.html) and [wxBitmap](https://docs.wxwidgets.org/3.1.4/classwx_bitmap.html)
+  - [ ] Consider [wxDC](https://docs.wxwidgets.org/3.1.4/classwx_d_c.html) and [wxBitmap](https://docs.wxwidgets.org/3.1.4/classwx_bitmap.html)
+  - [x] **IMPORTANT:** Research **[what NOT to do and how to use](https://wiki.wxwidgets.org/Making_a_render_loop)** (and why) [wxTimer](https://docs.wxwidgets.org/trunk/classwx_timer.html) vs [Render Loop](https://wiki.wxwidgets.org/Making_a_render_loop)
 - [ ] Render a static floor
 - [ ] Render crawler's body:
   - [ ] Create robot's body dimensions
