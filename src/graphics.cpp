@@ -9,17 +9,16 @@ Graphics::Graphics() : _width(1),
                        _pixelData(nullptr) {}
 
 // Overloaded default constructor
-Graphics::Graphics(wxWindow *parent,
-                   int width, 
-                   int height) : _width(width),
-                                 _height(height),
-                                 _curRGB(0),
-                                 _pixelData(new unsigned char[3 * _width * _height]),
-                                 _renderSurface(new wxWindow(parent,
-                                                             wxID_ANY, 
-                                                             wxDefaultPosition,
-                                                             wxSize(width, height))) {}
+Graphics::Graphics(wxWindow *parent, int width, int height) : _width(width),
+                                                              _height(height),
+                                                              _curRGB(0),
+                                                              _pixelData(new unsigned char[3 * _width * _height]),
+                                                              _renderSurface(new wxWindow(parent,
+                                                                                          wxID_ANY, 
+                                                                                          wxDefaultPosition,
+                                                                                          wxSize(width, height))) {}
  
+
 // Move constructor 
 Graphics::Graphics(Graphics &&source) {
   // Point variables / assign values
@@ -68,7 +67,7 @@ Graphics &Graphics::operator=(Graphics &&source) {
   return *this;
 }
 
-
+// Destructor
 Graphics::~Graphics() {
   if (_pixelData != nullptr) {
     delete[] _pixelData;
@@ -77,25 +76,34 @@ Graphics::~Graphics() {
   std::cout << "_graphics deallocated: " << this << std::endl;
 }
 
+// Setters for graphics
 void Graphics::SetBackgroundStyle(wxBackgroundStyle style) {
   this->_renderSurface->SetBackgroundStyle(style);
 };
+// Setters for timer
+void Graphics::SetTimerOwner(wxFrame *frame) {
+  this->_timer.SetOwner(frame);
+};
+void Graphics::StartTimer(unsigned int t) {
+  this->_timer.Start(t);
+};
 
+// Getters
 wxWindow *Graphics::GetRenderSurface() {
   return this->_renderSurface;
 }
-
 wxBitmap *Graphics::GetBitmapBuffer() {
   return &(this->_bitmapBuffer);
 }
 
-void Graphics::SetTimerOwner(wxFrame *frame) {
-  this->_timer.SetOwner(frame);
-};
 
-void Graphics::StartTimer(unsigned int t) {
-  this->_timer.Start(t);
-};
+// Behavioral methods
+void Graphics::DrawToBuffer() {
+  wxPaintDC dc(this->_renderSurface);  // TODO(SK): take a deeper look into rendering mechanism (Reminder for SK)
+  if (this->_bitmapBuffer.IsOk()) {
+    dc.DrawBitmap(_bitmapBuffer, 0, 0);
+  }
+}
 
 void Graphics::RebuildBufferAndRefresh() {
   // Build the pixel buffer here, for this simple example just set all pixels to the same value and then increment that value.

@@ -36,6 +36,9 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos = GUI::windowPosi
   this->InitAppLayout();
 
   // Graphics; TODO(SK): move to a separate function
+  this->_graphics->SetBackgroundStyle(wxBG_STYLE_PAINT);
+  this->_graphics->GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent through handle
+
   // Set timer for bitmap demo
   this->_graphics->SetTimerOwner(this);
   this->_graphics->StartTimer(17);
@@ -164,21 +167,18 @@ void MainFrame::InitPanelBottom() {
 
   this->_panelBottom->SetSizerAndFit(this->_sizerBottomCV);
 };
+
 void MainFrame::InitPanelGraphics() {
   // Create the graphics panel
   this->_panelGraphics = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::bitmapHeight));
-  this->_panelGraphics->SetBackgroundColour(GUI::middlePanelBgrColor);
+  this->_panelGraphics->SetBackgroundColour(GUI::middlePanelBgrColor);  // in case the bitmap width != window width
   
   // Middle sizer – _graphics
   this->_graphics = std::make_unique<Graphics>(this->_panelGraphics, GUI::bitmapWidth, GUI::bitmapHeight);
-  this->_graphics->SetBackgroundStyle(wxBG_STYLE_PAINT);
-  this->_graphics->GetRenderSurface()->Bind(wxEVT_PAINT, &MainFrame::OnPaint, this);  // impl in parent through handle
-
   this->_sizerGraphics = new wxBoxSizer(wxVERTICAL);
   this->_sizerGraphics->Add(this->_graphics->GetRenderSurface(), 1, wxALIGN_CENTER);
   this->_panelGraphics->SetSizerAndFit(this->_sizerGraphics);
   // Layout(); // resize element to cover the entire window: https://docs.wxwidgets.org/trunk/classwx_top_level_window.html#adfe7e3f4a32f3ed178968f64431bbfe0
-
 };
 
 void MainFrame::InitAppLayout() {
@@ -257,10 +257,7 @@ void MainFrame::OnSpinCtrl(wxSpinDoubleEvent &event) {
 
 // Graphics handlers
 void MainFrame::OnPaint(wxPaintEvent &event) {
-  wxPaintDC dc(_graphics->GetRenderSurface());  // TODO(SK): take a deeper look into rendering mechanism (Reminder for SK)
-  if (_graphics->GetBitmapBuffer()->IsOk()) {
-    dc.DrawBitmap(*_graphics->GetBitmapBuffer(), 0, 0);
-  }
+  this->_graphics->DrawToBuffer();
 }
 
 void MainFrame::OnTimer(wxTimerEvent &event) {

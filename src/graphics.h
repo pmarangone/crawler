@@ -20,12 +20,16 @@ class Graphics {
   Graphics(const Graphics &) = delete;  // no-copying policy constructor (due to wxWidgets resource ownership)
   Graphics &operator=(const Graphics &) = delete;  // no-copying policy assigment operator constructor (due to wxWidgets ownership)
   Graphics(Graphics &&source);
-  Graphics &operator=(Graphics &&course);
+  Graphics &operator=(Graphics &&source);
   virtual ~Graphics();  // virtual destructor
-  // Setters and getters
+
+  // Behavioral methods
+  void DrawToBuffer();
+  // Setters
   void SetBackgroundStyle(wxBackgroundStyle style);
   void SetTimerOwner(wxFrame *frame);
   void StartTimer(unsigned int t);
+  // Getters
   wxWindow *GetRenderSurface();
   wxBitmap *GetBitmapBuffer();
   // Behavioral methods
@@ -33,7 +37,7 @@ class Graphics {
  private:
   int _width;
   int _height;
-  int _curRGB;
+  int _curRGB;  // 
   wxTimer _timer;
   wxBitmap _bitmapBuffer;
   wxWindow *_renderSurface;
