@@ -1,19 +1,12 @@
 # Crawler CS188
 
-Custom homemade replica of Berkeley's CS188 class implemented in C++, wxWidgets and SDL2 by Patrick Marangone (@[pmarangone](https://github.com/pmarangone)) and Sergei Kononov (@[hemulens](https://github.com/hemulens)). Please find our original project repository [here](https://github.com/pmarangone/crawler/tree/master).
+Custom homemade replica of Berkeley's CS188 class implemented in C++ and wxWidgets by Patrick Marangone (@[pmarangone](https://github.com/pmarangone)) and Sergei Kononov (@[hemulens](https://github.com/hemulens)). Please find our original project repository [here](https://github.com/pmarangone/crawler/tree/master).
 
 ## Target Interface Example
 
-![Target interface of the project](_resources/img/example-berkeley-1.png "Crawler CS188")
+![Target interface of the project](_resources/img/example-berkeley-2.png "Crawler CS188")
 
 ## Tentative TODOs
-
-### Choose Approach
-
-- [x] Find an approach to build a CS188's crawler GUI and graphics
-- [x] Choose best suitable libraries
-  - [x] a) Use WxWidgets for GUI
-  - [x] b) [Integrate](http://code.technoplaza.net/wx-sdl/) SDL2 (graphics) into WxWidgets GUI (canceled: Mac's Cocoa misbehaves, conflict with GTK+)
 
 ### Build GUI
 
