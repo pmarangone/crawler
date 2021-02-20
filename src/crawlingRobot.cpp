@@ -15,7 +15,7 @@ CrawlingRobot::CrawlingRobot() {
   _robotWidth = 80;
   _robotHeight = 40;
   _robotPos.x = 20;
-  _robotPos.y = 1;  // _groundY;
+  _robotPos.y = _groundY;
 
   /* Robot Arm */
   _armLength = 60;
@@ -26,8 +26,8 @@ CrawlingRobot::CrawlingRobot() {
   _positions.push_back(0);
   _positions.push_back(0);
 }
-// TODO
-CrawlingRobot::~CrawlingRobot() { ; }
+
+CrawlingRobot::~CrawlingRobot() {}
 
 void CrawlingRobot::SetAngles(double armAngle, double handAngle) {
   _armAngle = armAngle;
@@ -147,21 +147,11 @@ double CrawlingRobot::Displacement(double oldArmDegree, double oldHandDegree,
 // TODO: decide how draw function is implemented
 void CrawlingRobot::Draw(double stepCount, double stepDelay){};
 
-
-
 // Getters & setters for control variables (spin controls)
-double CrawlingRobot::GetLearningRate() {
-  return this->_learningRate;
-}
-double CrawlingRobot::GetStepDelay() {
-  return this->_stepDelay;
-}
-double CrawlingRobot::GetDiscount() {
-  return this->_discount;
-}
-double CrawlingRobot::GetEpsilon() {
-  return this->_epsilon;
-}
+double CrawlingRobot::GetLearningRate() { return this->_learningRate; }
+double CrawlingRobot::GetStepDelay() { return this->_stepDelay; }
+double CrawlingRobot::GetDiscount() { return this->_discount; }
+double CrawlingRobot::GetEpsilon() { return this->_epsilon; }
 
 void CrawlingRobot::SetLearningRate(double learningRate) {
   this->_learningRate = learningRate;

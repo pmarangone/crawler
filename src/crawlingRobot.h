@@ -5,9 +5,9 @@
 #include <cmath>     // trig functions
 #include <iostream>  // debug
 #include <memory>    // unique_ptr
-#include <queue>
-#include <utility>  // pair
-#include <vector>
+#include <queue>     // deque
+#include <utility>   // pair
+#include <vector>   
 
 struct State {
   double armBucket;
@@ -80,6 +80,10 @@ class CrawlingRobot {
 
   // first-in first-out behavior
   std::deque<int> _positions;
+
+  // temporary values
+  double _groundHeight{100}; // same size as bottomPanelHeight
+  double _groundY{300-100}; // windowHeight - groundHeight = top of bottomPanel
 
  private:
   // Control variables (passed into the GUI's spin control panel)
