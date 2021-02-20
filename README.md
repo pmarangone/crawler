@@ -2,7 +2,13 @@
 
 Custom homemade replica of Berkeley's CS188 class implemented in C++ and wxWidgets by Patrick Marangone (@[pmarangone](https://github.com/pmarangone)) and Sergei Kononov (@[hemulens](https://github.com/hemulens)). Please find our original project repository [here](https://github.com/pmarangone/crawler/tree/master).
 
-## Target Interface Example
+## Target Interface Examples
+
+### Example 1
+
+![Target interface of the project](_resources/img/example-berkeley-1.png "Crawler CS188")
+
+### Example 2
 
 ![Target interface of the project](_resources/img/example-berkeley-2.png "Crawler CS188")
 
