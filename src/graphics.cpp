@@ -82,7 +82,10 @@ Graphics::~Graphics() {
 void Graphics::SetTimerOwner(wxFrame *frame) {
   _timer.SetOwner(frame);
 };
-void Graphics::StartTimer(unsigned int t, bool oneShot) {  // t = milliseconds, oneSHot = wxTIMER_CONTINUOUS (while loop alternative) or wxTIMER_ONE_SHOT; https://docs.wxwidgets.org/trunk/classwx_timer.html
+void Graphics::InitLoop() {
+  _timer.Start(5, wxTIMER_CONTINUOUS);  // 17 = approx. 60 frames per second; 10 = 100 frames per second
+}
+void Graphics::InitLoop(unsigned int t, bool oneShot) {  // t = milliseconds, oneSHot = wxTIMER_CONTINUOUS (while loop alternative) or wxTIMER_ONE_SHOT; https://docs.wxwidgets.org/trunk/classwx_timer.html
   _timer.Start(t, oneShot);
 };
 

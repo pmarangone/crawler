@@ -28,7 +28,8 @@ class Graphics {
   void DrawToBuffer();
   // Setters
   void SetTimerOwner(wxFrame *frame);
-  void StartTimer(unsigned int t, bool oneShot);
+  void InitLoop();
+  void InitLoop(unsigned int t, bool oneShot);
   // Getters
   wxWindow *GetRenderSurface();
   wxBitmap *GetBitmapBuffer();

@@ -23,14 +23,13 @@ wxEND_EVENT_TABLE()
 // Main window
 
 // Constructor for a non-resizable window (use wxDEFAULT_FRAME_STYLE style for a resizable window)
-MainFrame::MainFrame(const wxString &title, 
-                     const wxPoint &pos = GUI::windowPosition, 
-                     const wxSize &size = GUI::windowSize, 
+MainFrame::MainFrame(const wxString &title,
+                     const wxPoint &pos = GUI::windowPosition,
+                     const wxSize &size = GUI::windowSize,
                      long style = GUI::windowStyleNonResizable)
     : wxFrame(NULL, wxID_ANY, title, pos, size, style),
       _graphics(nullptr),
       _robot(std::make_unique<CrawlingRobot>()) {
-
   // GUI initialization:
   // Init menu
   InitMenu();
@@ -38,12 +37,9 @@ MainFrame::MainFrame(const wxString &title,
   InitPanelTop();
   InitPanelBottom();
   InitPanelGraphics();  // both graphics panel and Graphics instance are initialized inside
-  InitAppLayout();  // fit all GUI elements into the main app window
-  // Launch renderer
-  LaunchRendererer();
+  LaunchRendererer();   // launch renderer
+  InitAppLayout();      // fit all GUI elements into the main app window
 }
-
-
 
 MainFrame::~MainFrame() {
   // TODO(SK): Destroy panels and all its children manually, if wxWidgets doesn't automatically (https://docs.wxwidgets.org/trunk/overview_windowdeletion.html)
@@ -194,18 +190,17 @@ void MainFrame::InitAppLayout() {
   SetSizerAndFit(_sizerMain);
 }
 
-
 // Behavioral methods
 void MainFrame::LaunchRendererer() {
   // Launch renderer
   _graphics->GetRenderSurface()->Bind(wxEVT_PAINT, [this](wxPaintEvent) {
-    _graphics->DrawToBuffer();
+    this->_graphics->DrawToBuffer();
   });  // once called, OnPaint is triggered
   // Set timer = wxWidgets' version of the while loop; see more here: https://docs.wxwidgets.org/trunk/classwx_timer.html
   _graphics->SetTimerOwner(this);
-  _graphics->StartTimer(10, wxTIMER_CONTINUOUS);  // 17 = approx. 60 frames per second; 10 = 100 frames per second
+  _graphics->InitLoop();
   Bind(wxEVT_TIMER, [this](wxTimerEvent) {
-    _graphics->RebuildBufferAndRefresh();
+    this->_graphics->RebuildBufferAndRefresh();
   });
 }
 
@@ -216,8 +211,6 @@ void MainFrame::LaunchRendererer() {
 // void MainFrame::OnTimer(wxTimerEvent &event) {
 //   _graphics->RebuildBufferAndRefresh();
 // }
-
-
 
 // All event handlers
 // Menu event handlers
