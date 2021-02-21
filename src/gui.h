@@ -12,7 +12,7 @@
 
 // For compilers that support precompilation, includes "wx/wx.h"; this global header already includes wx/wx.h
 #ifndef WX_PRECOMP
-  #include <wx/wx.h>
+#include <wx/wx.h>
 #endif
 
 #include "crawlingRobot.h"
@@ -47,7 +47,6 @@ enum ID {  // No need to implement "About" and "Exit" (automatic)
   SPIN_DISCOUNT,
   SPIN_EPSILON
 };
-
 
 // Main frame; alternative – wxDialog
 class MainFrame : public wxFrame {
@@ -111,7 +110,7 @@ class MainFrame : public wxFrame {
   wxSizer *_sizerStepDelay{nullptr};
   wxSizer *_sizerEpsilon{nullptr};
   wxSizer *_sizerDiscount{nullptr};
-  wxSizer *_sizerLearningRate{nullptr}; 
+  wxSizer *_sizerLearningRate{nullptr};
   // Spin controls (bottom panel)
   wxSpinCtrlDouble *_ctrlLearningRate{nullptr};
   wxSpinCtrlDouble *_ctrlStepDelay{nullptr};
@@ -123,5 +122,4 @@ class MainFrame : public wxFrame {
 
 #endif /* GUI_H */
 
-
-// For compilation problems (duplicate definitions), see https://www.howtobuildsoftware.com/index.php/how-do/bHE6/c-c-cuda-header-files-duplicate-symbol-duplicate-symbol-issue-with-c-headers 
+// For compilation problems (duplicate definitions), see https://www.howtobuildsoftware.com/index.php/how-do/bHE6/c-c-cuda-header-files-duplicate-symbol-duplicate-symbol-issue-with-c-headers
