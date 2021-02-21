@@ -194,13 +194,13 @@ void MainFrame::InitAppLayout() {
 void MainFrame::LaunchRendererer() {
   // Launch renderer
   _graphics->GetRenderSurface()->Bind(wxEVT_PAINT, [this](wxPaintEvent) {
-    _graphics->DrawToBuffer();
+    this->_graphics->DrawToBuffer();
   });  // once called, OnPaint is triggered
   // Set timer = wxWidgets' version of the while loop; see more here: https://docs.wxwidgets.org/trunk/classwx_timer.html
   _graphics->SetTimerOwner(this);
-  _graphics->StartTimer(5, wxTIMER_CONTINUOUS);  // 17 = approx. 60 frames per second; 10 = 100 frames per second
+  _graphics->InitLoop();
   Bind(wxEVT_TIMER, [this](wxTimerEvent) {
-    _graphics->RebuildBufferAndRefresh();
+    this->_graphics->RebuildBufferAndRefresh();
   });
 }
 
