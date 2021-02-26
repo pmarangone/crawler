@@ -7,15 +7,24 @@
 #include <wx/timer.h>
 #include <wx/wxprec.h>
 
+#include <cassert>
+#include <memory>
+#include <tuple>
+
+#include "crawlingRobot.h"
+#include "crawlingRobotEnvironment.h"
+
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
 
-class Graphics {
+class RenderTimer;
+
+class Graphics : public wxWindow {
  public:
   // Default constructors
   Graphics();
-  Graphics(wxWindow *parent, int width, int height);
+  Graphics(wxPanel *parent, std::shared_ptr<CrawlingRobot> &robot, int width, int height);
   // Rule of five
   Graphics(const Graphics &) = delete;             // no-copying policy constructor (due to wxWidgets resource ownership)
   Graphics &operator=(const Graphics &) = delete;  // no-copying policy assigment operator constructor (due to wxWidgets ownership)
@@ -23,29 +32,27 @@ class Graphics {
   Graphics &operator=(Graphics &&source);
   // Destructor
   virtual ~Graphics();
-
-  // Behavioral methods
-  void DrawToBuffer();
   // Setters
   void SetTimerOwner(wxFrame *frame);
   void InitLoop();
   void InitLoop(unsigned int t, bool oneShot);
   // Getters
   wxWindow *GetRenderSurface();
-  wxBitmap *GetBitmapBuffer();
   // Behavioral methods
-  void RebuildBufferAndRefresh();
+  void Render(wxDC &dc);
+  void paintEvent(wxPaintEvent &evt);
+  void paintNow();
+  void Notify();
 
  private:
-  int _width;                 // bitmap width
-  int _height;                // bitmap height
-  wxBitmap _bitmapBuffer;     // pixels are drawn here
-  wxWindow *_renderSurface;   // main graphics screen where things get rendered; gets moved to _sizerGraphics in the MainFrame
-  unsigned char *_pixelData;  // 8 bit for rgba variable
-  int _curRGB;                // temporary demo dependency
-  wxTimer _timer;             // alternative to the while loop introduced by wxWidgets for consistent rendering
+  int _width;      // bitmap width
+  int _height;     // bitmap height
+  wxTimer _timer;  // alternative to the while loop introduced by wxWidgets for consistent rendering
+
+  // Crawling robot
+  std::shared_ptr<CrawlingRobot> _robot{nullptr};
+
+  DECLARE_EVENT_TABLE()
 };
 
 #endif /* GRAPHICS_H */
-
-// How to embed SDl2 window into a wxWidgets panel: https://forums.wxwidgets.org/viewtopic.php?t=42189

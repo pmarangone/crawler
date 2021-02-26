@@ -1,42 +1,37 @@
 #include "graphics.h"
 
+// clang-format off
+BEGIN_EVENT_TABLE(Graphics, wxWindow)
+  EVT_PAINT(Graphics::paintEvent)
+END_EVENT_TABLE();
+// clang-format on
+
 // Default constructor
 Graphics::Graphics() : _width(1),
-                       _height(1),
-                       _curRGB(0),
-                       _bitmapBuffer(_width, _height, 24),
-                       _renderSurface(nullptr),
-                       _pixelData(nullptr) {}
+                       _height(1) {}
 
 // Overloaded default constructor
-Graphics::Graphics(wxWindow *parent, int width, int height)
-    : _width(width),
+Graphics::Graphics(wxPanel *parent, std::shared_ptr<CrawlingRobot> &robot, int width, int height)
+    : wxWindow(parent,
+               wxID_ANY,
+               wxDefaultPosition,
+               wxSize(width, height)),
+      _width(width),
       _height(height),
-      _curRGB(0),
-      _pixelData(new unsigned char[3 * _width * _height]),
-      _renderSurface(new wxWindow(parent,
-                                  wxID_ANY,
-                                  wxDefaultPosition,
-                                  wxSize(width, height))) {
-  _renderSurface->SetBackgroundStyle(wxBG_STYLE_PAINT);
+      _robot(robot) {
+  this->SetBackgroundStyle(wxBG_STYLE_PAINT);
 }
 
 // Move constructor
 Graphics::Graphics(Graphics &&source) {
   // Point variables / assign values
-  _pixelData = source._pixelData;
-  _renderSurface = source._renderSurface;
-  _bitmapBuffer = std::move(source._bitmapBuffer);  // source invalidated by moving
   _width = source._width;
   _height = source._height;
-  _curRGB = source._curRGB;
+  _robot = std::move(source._robot);
   // _timer left out (no copying policy imposed by wxWidgets)
   // Invalidate source
-  source._pixelData = nullptr;
-  source._renderSurface = nullptr;
   source._width = 0;
   source._height = 0;
-  source._curRGB = 0;
   std::cout << "Moved instance " << &source << " to " << this << std::endl;
 }
 
@@ -45,35 +40,19 @@ Graphics &Graphics::operator=(Graphics &&source) {
   if (this == &source) {
     return *this;
   }
-  // Free allocated memory (assume that the object lived before and gets reinitialized)
-  if (_pixelData != nullptr) {
-    delete[] _pixelData;
-  }
-  if (_renderSurface != nullptr) {
-    delete _renderSurface;
-  }
   // Point variables / assign values
-  _pixelData = source._pixelData;
-  _renderSurface = source._renderSurface;
-  _bitmapBuffer = std::move(source._bitmapBuffer);  // source invalidated by moving
   _width = source._width;
   _height = source._height;
-  _curRGB = source._curRGB;
+  _robot = std::move(source._robot);
   // Invalidate source
-  source._pixelData = nullptr;
-  source._renderSurface = nullptr;
   source._width = 0;
   source._height = 0;
-  source._curRGB = 0;
   std::cout << "Moved '&operator=' instance " << &source << " to " << this << std::endl;
   return *this;
 }
 
 // Destructor
 Graphics::~Graphics() {
-  if (_pixelData != nullptr) {
-    delete[] _pixelData;
-  }
   _timer.Stop();
   std::cout << "_graphics deallocated: " << this << std::endl;
 }
@@ -81,69 +60,79 @@ Graphics::~Graphics() {
 // Setters for timer
 void Graphics::SetTimerOwner(wxFrame *frame) {
   _timer.SetOwner(frame);
-};
+}
 void Graphics::InitLoop() {
-  _timer.Start(5, wxTIMER_CONTINUOUS);  // 17 = approx. 60 frames per second; 10 = 100 frames per second
+  _timer.Start(17, wxTIMER_CONTINUOUS);  // 17 = approx. 60 frames per second; 10 = 100 frames per second
 }
 void Graphics::InitLoop(unsigned int t, bool oneShot) {  // t = milliseconds, oneSHot = wxTIMER_CONTINUOUS (while loop alternative) or wxTIMER_ONE_SHOT; https://docs.wxwidgets.org/trunk/classwx_timer.html
   _timer.Start(t, oneShot);
-};
+}
 
 // Getters
 wxWindow *Graphics::GetRenderSurface() {
-  return _renderSurface;
-}
-wxBitmap *Graphics::GetBitmapBuffer() {
-  return &(_bitmapBuffer);
+  return this;
 }
 
 // Behavioral methods
-void Graphics::DrawToBuffer() {
-  wxPaintDC dc(_renderSurface);  // TODO(SK): take a deeper look into rendering mechanism (Reminder for SK)
-  if (_bitmapBuffer.IsOk()) {
-    dc.DrawBitmap(_bitmapBuffer, 0, 0);
-  }
+
+void Graphics::paintEvent(wxPaintEvent &evt) {
+  wxPaintDC dc(this);
+  Render(dc);
 }
 
-void Graphics::RebuildBufferAndRefresh() {
-  // Build the pixel buffer here, for this simple example just set all pixels to the same value and then increment that value.
-  for (int y = 0; y < _height; ++y) {
-    for (int x = 0; x < _width; ++x) {
-      _pixelData[3 * y * _width + 3 * x] = _curRGB;
-      _pixelData[3 * y * _width + 3 * x + 1] = _curRGB;
-      _pixelData[3 * y * _width + 3 * x + 2] = _curRGB;
-    }
-  }
+void Graphics::paintNow() {
+  wxClientDC dc(this);
+  Render(dc);
+}
 
-  ++(_curRGB);
-  if (_curRGB > 255) {
-    _curRGB = 0;
-  }
+void Graphics::Notify() { Refresh(); }
 
-  // Now transfer the pixel data into a wxBitmap
-  wxBitmap b(_width, _height, 24);
-  wxNativePixelData data(b);
+void Graphics::Render(wxDC &dc) {
+  int x1 = _robot->_robotPos.x, y1 = _robot->_robotPos.y;
+  x1 = x1 % _robot->_windowWidth;
 
-  if (!data) {
-    // ... raw access to bitmap data unavailable, do something else ...
-    return;
-  }
+  double rotationAngle = _robot->GetRotationAngle();
+  double cosRot, sinRot;
+  std::tie(cosRot, sinRot) = _robot->GetCosAndSin(rotationAngle);
 
-  wxNativePixelData::Iterator p(data);
+  assert((y1 == _robot->_groundY) && "Value initialization inconsistent");
 
-  int curPixelDataLoc = 0;
-  for (int y = 0; y < _height; ++y) {
-    wxNativePixelData::Iterator rowStart = p;
-    for (int x = 0; x < _width; ++x, ++p) {
-      p.Red() = _pixelData[curPixelDataLoc++];
-      p.Green() = _pixelData[curPixelDataLoc++];
-      p.Blue() = _pixelData[curPixelDataLoc++];
-    }
-    p = rowStart;
-    p.OffsetY(data, 1);
-  }
+  int x2 = x1 + _robot->_robotWidth * cosRot;
+  int y2 = y1 - _robot->_robotWidth * sinRot;
 
-  _bitmapBuffer = b;
-  _renderSurface->Refresh();
-  _renderSurface->Update();
+  int x3 = x1 - _robot->_robotHeight * sinRot;
+  int y3 = y1 - _robot->_robotHeight * cosRot;
+
+  int x4 = x3 + cosRot * _robot->_robotWidth;
+  int y4 = y3 - sinRot * _robot->_robotWidth;
+
+  wxPoint points[4];
+  points[0] = wxPoint(x1, y1);
+  points[1] = wxPoint(x2, y2);
+  points[2] = wxPoint(x4, y4);
+  points[3] = wxPoint(x3, y3);
+
+  /* robot body */
+  dc.SetBrush(*wxGREEN_BRUSH);
+  dc.DrawPolygon(WXSIZEOF(points), points, 0, 0);
+
+  /* robot arm */
+  double armCos, armSin;
+  std::tie(armCos, armSin) = _robot->GetCosAndSin(rotationAngle + _robot->_armAngle);
+  int xArm = x4 + _robot->_armLength * armCos;
+  int yArm = y4 - _robot->_armLength * armSin;
+
+  dc.SetBrush(*wxYELLOW_BRUSH);
+  dc.DrawLine(x4, y4, xArm, yArm);
+
+  /* robot hand */
+  double handCos, handSin;
+  std::tie(handCos, handSin) = _robot->GetCosAndSin(_robot->_handAngle + rotationAngle);
+  int xHand = xArm + _robot->_handLength * handCos;
+  int yHand = yArm - _robot->_handLength * handSin;
+
+  dc.SetBrush(*wxRED_BRUSH);
+  dc.DrawLine(xArm, yArm, xHand, yHand);
+
+  _robot->_robotPos.x += 1;
 }
