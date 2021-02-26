@@ -29,7 +29,7 @@ MainFrame::MainFrame(const wxString &title,
                      long style = GUI::windowStyleNonResizable)
     : wxFrame(NULL, wxID_ANY, title, pos, size, style),
       _graphics(nullptr),
-      _robot(std::make_unique<CrawlingRobot>()) {
+      _robot(std::make_shared<CrawlingRobot>()) {
   // GUI initialization:
   // Init menu
   InitMenu();
@@ -37,7 +37,8 @@ MainFrame::MainFrame(const wxString &title,
   InitPanelTop();
   InitPanelBottom();
   InitPanelGraphics();  // both graphics panel and Graphics instance are initialized inside
-  LaunchRendererer();   // launch renderer
+  LaunchRenderer();     // launch renderer
+  InitEnvironment();    // instantiate robot environment
   InitAppLayout();      // fit all GUI elements into the main app window
 }
 
@@ -178,7 +179,7 @@ void MainFrame::InitPanelGraphics() {
 };
 
 void MainFrame::InitGraphics(wxPanel *parent) {
-  _graphics = std::make_unique<Graphics>(parent, GUI::bitmapWidth, GUI::bitmapHeight);
+  _graphics = std::make_unique<Graphics>(parent, _robot, GUI::bitmapWidth, GUI::bitmapHeight);
 }
 
 void MainFrame::InitAppLayout() {
@@ -190,23 +191,22 @@ void MainFrame::InitAppLayout() {
   SetSizerAndFit(_sizerMain);
 }
 
+void MainFrame::InitEnvironment() {
+  _robotEnvironment = std::make_shared<CrawlingRobotEnvironment>(CrawlingRobotEnvironment(_robot));
+}
 // Behavioral methods
-void MainFrame::LaunchRendererer() {
+void MainFrame::LaunchRenderer() {
   // Launch renderer
-  _graphics->GetRenderSurface()->Bind(wxEVT_PAINT, [this](wxPaintEvent) {
-    this->_graphics->DrawToBuffer();
-  });  // once called, OnPaint is triggered
   // Set timer = wxWidgets' version of the while loop; see more here: https://docs.wxwidgets.org/trunk/classwx_timer.html
   _graphics->SetTimerOwner(this);
   _graphics->InitLoop();
   Bind(wxEVT_TIMER, [this](wxTimerEvent) {
-    this->_graphics->RebuildBufferAndRefresh();
+    this->_graphics->Notify();
   });
 }
 
 // Graphics handlers
 // void MainFrame::OnPaint(wxPaintEvent &event) {
-//   _graphics->DrawToBuffer();
 // }
 // void MainFrame::OnTimer(wxTimerEvent &event) {
 //   _graphics->RebuildBufferAndRefresh();

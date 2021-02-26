@@ -15,7 +15,6 @@
 #include <wx/wx.h>
 #endif
 
-#include "crawlingRobot.h"
 #include "graphics.h"
 
 // clang-format off
@@ -63,8 +62,10 @@ class MainFrame : public wxFrame {
   void InitGraphics(wxPanel *parent);
   void InitAppLayout();  // fits all panels and their nested sizers into the main sizer in the main frame
   // Behavioral methods
-  void LaunchRendererer();
+  void LaunchRenderer();
+  void InitEnvironment();
   // Event handlers – no need to be virtual nor public
+  void OnPaint(wxPaintEvent &event);
   // Menu
   void OnHello(wxCommandEvent &event);
   void OnExit(wxCommandEvent &event);
@@ -78,7 +79,8 @@ class MainFrame : public wxFrame {
 
   // Private variables
   // Crawling robot
-  std::unique_ptr<CrawlingRobot> _robot;
+  std::shared_ptr<CrawlingRobot> _robot{nullptr};
+  std::shared_ptr<CrawlingRobotEnvironment> _robotEnvironment{nullptr};
   // Graphics
   std::unique_ptr<Graphics> _graphics;
   // GUI parts (in case there is a need for dynamic GUI)
