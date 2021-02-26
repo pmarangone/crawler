@@ -23,8 +23,47 @@ CrawlingRobot::CrawlingRobot() {
   /* Robot Hand */
   _handLength = 40;
 
-  _positions.push_back(0);
-  _positions.push_back(0);
+  _positions = std::deque<int>{0, 0};
+  _lastStep = 0;
+}
+
+CrawlingRobot::CrawlingRobot(const CrawlingRobot &source) {
+  _armAngle = source._armAngle;
+  _oldArmDegree = source._oldArmDegree;
+  _handAngle = source._handAngle;
+  _oldHandDegree = source._oldHandDegree;
+  _robotPos = source._robotPos;
+  _positions = source._positions;
+}
+CrawlingRobot &CrawlingRobot::operator=(const CrawlingRobot &source) {
+  _armAngle = source._armAngle;
+  _oldArmDegree = source._oldArmDegree;
+  _handAngle = source._handAngle;
+  _oldHandDegree = source._oldHandDegree;
+  _robotPos = source._robotPos;
+  _positions = source._positions;
+
+  return *this;
+}
+
+CrawlingRobot::CrawlingRobot(CrawlingRobot &&source) {
+  _armAngle = source._armAngle;
+  _oldArmDegree = source._oldArmDegree;
+  _handAngle = source._handAngle;
+  _oldHandDegree = source._oldHandDegree;
+  _robotPos = source._robotPos;
+  _positions = source._positions;
+}
+
+CrawlingRobot &CrawlingRobot::operator=(CrawlingRobot &&source) {
+  _armAngle = source._armAngle;
+  _oldArmDegree = source._oldArmDegree;
+  _handAngle = source._handAngle;
+  _oldHandDegree = source._oldHandDegree;
+  _robotPos = source._robotPos;
+  _positions = source._positions;
+
+  return *this;
 }
 
 CrawlingRobot::~CrawlingRobot() {}
@@ -111,8 +150,7 @@ std::pair<double, double> CrawlingRobot::GetCosAndSin(double angle) {
   return std::pair<double, double>(cosine, sine);
 }
 
-double CrawlingRobot::Displacement(double oldArmDegree, double oldHandDegree,
-                                   double armDegree, double handDegree) {
+double CrawlingRobot::Displacement(double oldArmDegree, double oldHandDegree, double armDegree, double handDegree) {
   double armCos, armSin, oldArmCos, oldArmSin;
   double handCos, handSin, oldHandCos, oldHandSin;
 
@@ -143,9 +181,6 @@ double CrawlingRobot::Displacement(double oldArmDegree, double oldHandDegree,
   assert(0 == 1 && "Should never happen!");
   return 0.0;
 }
-
-// TODO: decide how draw function is implemented
-void CrawlingRobot::Draw(double stepCount, double stepDelay){};
 
 // Getters & setters for control variables (spin controls)
 double CrawlingRobot::GetLearningRate() { return this->_learningRate; }

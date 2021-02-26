@@ -1,3 +1,6 @@
+#ifndef CRAWLINGROBOT_H
+#define CRAWLINGROBOT_H
+
 #define _USE_MATH_DEFINES
 
 #include <cassert>   // assert
@@ -7,7 +10,6 @@
 #include <memory>    // unique_ptr
 #include <queue>     // deque
 #include <utility>   // pair
-#include <vector>   
 
 struct State {
   double armBucket;
@@ -22,25 +24,29 @@ struct Position {
 class CrawlingRobot {
  public:
   CrawlingRobot();
+  CrawlingRobot(const CrawlingRobot &source);
+  CrawlingRobot &operator=(const CrawlingRobot &source);
+  CrawlingRobot(CrawlingRobot &&source);
+  CrawlingRobot &operator=(CrawlingRobot &&source);
   ~CrawlingRobot();
 
+  // Getters & setters for robot variables
   void SetAngles(double armAngle, double handAngle);
-  std::pair<double, double> GetAngles();
-  Position GetRobotPosition();
-  void MoveArm(double newArmAngle);
-  void MoveHand(double newHandAngle);
-
   std::pair<double, double> GetMinAndMaxArmAngles();
   std::pair<double, double> GetMinAndMaxHandAngles();
-  double GetRotationAngle();
   std::pair<double, double> GetCosAndSin(double angle);
+  std::pair<double, double> GetAngles();
+  double GetRotationAngle();
+  Position GetRobotPosition();
 
+  // Robot update values
+  void MoveArm(double newArmAngle);
+  void MoveHand(double newHandAngle);
   /* */
   double Displacement(double oldArmDegree, double oldHandDegree,
                       double armDegree, double handDegree);
-  void Draw(double stepCount, double stepDelay);
-
   // Getters & setters for control variables (spin controls)
+
   double GetLearningRate();
   double GetStepDelay();
   double GetDiscount();
@@ -52,8 +58,8 @@ class CrawlingRobot {
   void SetEpsilon(double epsilon);
 
   /* Canvas */
-  double velAvg;
-  double lastStep;
+  double _velAvg;
+  double _lastStep;
 
   /* Arm and Hand Degrees */
   double _armAngle;
@@ -82,13 +88,17 @@ class CrawlingRobot {
   std::deque<int> _positions;
 
   // temporary values
-  double _groundHeight{100}; // same size as bottomPanelHeight
-  double _groundY{300-100}; // windowHeight - groundHeight = top of bottomPanel
+  double _groundHeight{196};   // same size as bottomPanelHeight
+  double _groundY{500 - 196};  // windowHeight - groundHeight = top of bottomPanel
+  int _windowWidth{900};
+  int _windowHeight{500};
 
  private:
   // Control variables (passed into the GUI's spin control panel)
   double _learningRate{0.8};
-  double _stepDelay{0.5};
+  double _stepDelay{1};
   double _discount{0.8};
   double _epsilon{0.5};
 };
+
+#endif /* CRAWLINGROBOT_H */
