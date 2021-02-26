@@ -1,15 +1,6 @@
 #include "crawlingRobotEnvironment.h"
 
-// TODO
-CrawlingRobotEnvironment::CrawlingRobotEnvironment() { ; }
-
-// TODO
-CrawlingRobotEnvironment::~CrawlingRobotEnvironment() { ; }
-
-CrawlingRobotEnvironment::CrawlingRobotEnvironment(
-    CrawlingRobot crawlingRobot) {
-  _crawlingRobot = std::make_unique<CrawlingRobot>();
-
+CrawlingRobotEnvironment::CrawlingRobotEnvironment(std::shared_ptr<CrawlingRobot> &crawlingRobot) : _crawlingRobot(crawlingRobot) {
   double minArmAngle, maxArmAngle, minHandAngle, maxHandAngle;
 
   std::tie(minArmAngle, maxArmAngle) = _crawlingRobot->GetMinAndMaxArmAngles();
@@ -29,6 +20,7 @@ CrawlingRobotEnvironment::CrawlingRobotEnvironment(
   Reset();
 }
 
+CrawlingRobotEnvironment::~CrawlingRobotEnvironment() {}
 State CrawlingRobotEnvironment::GetCurrentState() { return _state; }
 
 std::vector<std::string> CrawlingRobotEnvironment::GetPossibleActions(

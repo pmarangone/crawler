@@ -1,10 +1,15 @@
+#ifndef CRAWLINGROBOTENVIRONMENT_H
+#define CRAWLINGROBOTENVIRONMENT_H
+
+#include <vector>
+
 #include "crawlingRobot.h"
 
 class CrawlingRobotEnvironment {
+  CrawlingRobotEnvironment() = delete;
+
  public:
-  CrawlingRobotEnvironment();
-  CrawlingRobotEnvironment(
-      CrawlingRobot crawlingRobot);  // TODO
+  CrawlingRobotEnvironment(std::shared_ptr<CrawlingRobot> &crawlingRobot);
   ~CrawlingRobotEnvironment();
 
   State GetCurrentState();
@@ -15,9 +20,11 @@ class CrawlingRobotEnvironment {
   double _nArmStates = 9;
   double _nHandStates = 13;
 
-  std::unique_ptr<CrawlingRobot> _crawlingRobot;
+  std::shared_ptr<CrawlingRobot> _crawlingRobot{nullptr};
   State _state;
 
   std::vector<int> _armBuckets;
   std::vector<int> _handBuckets;
 };
+
+#endif /* CRAWLINGROBOTENVIRONMENT_H */
