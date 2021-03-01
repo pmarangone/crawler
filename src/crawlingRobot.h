@@ -11,11 +11,6 @@
 #include <queue>     // deque
 #include <utility>   // pair
 
-struct State {
-  double armBucket;
-  double handBucket;
-};
-
 struct Position {
   double x;
   double y;
