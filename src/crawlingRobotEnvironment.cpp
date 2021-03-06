@@ -1,6 +1,6 @@
 #include "crawlingRobotEnvironment.h"
 
-CrawlingRobotEnvironment::CrawlingRobotEnvironment(std::shared_ptr<CrawlingRobot> &crawlingRobot)
+CrawlingRobotEnvironment::CrawlingRobotEnvironment(std::shared_ptr<CrawlingRobot> crawlingRobot)
     : _crawlingRobot(crawlingRobot) {
   double minArmAngle, maxArmAngle, minHandAngle, maxHandAngle;
 
@@ -22,29 +22,41 @@ CrawlingRobotEnvironment::CrawlingRobotEnvironment(std::shared_ptr<CrawlingRobot
 }
 
 CrawlingRobotEnvironment::~CrawlingRobotEnvironment() {}
-std::vector<double> CrawlingRobotEnvironment::GetCurrentState() { return _state; }
+std::pair<int, int> CrawlingRobotEnvironment::GetCurrentState() {
+  return {0, 0};
+}
 
-std::vector<std::string> CrawlingRobotEnvironment::GetPossibleActions(std::vector<double> &state) {
-  std::vector<std::string> actions{};
+std::vector<std::string> CrawlingRobotEnvironment::GetPossibleActions(std::pair<int, int> state) {
+  std::vector<std::string> actions;
 
-  double currArmBucket = state[0];
-  double currHandBucket = state[1];
+  int currArmBucket = state.first;
+  int currHandBucket = state.second;
 
-  if (currArmBucket > 0) actions.push_back("arm-down");
-  if (currArmBucket < _nArmStates - 1) actions.push_back("arm-up");
-  if (currHandBucket > 0) actions.push_back("hand-down");
-  if (currHandBucket < _nHandStates - 1) actions.push_back("hand-up");
-
+  if (currArmBucket > 0) {
+    actions.push_back("arm-down");
+  }
+  if (currArmBucket < _nArmStates - 1) {
+    actions.push_back("arm-up");
+  }
+  if (currHandBucket > 0) {
+    actions.push_back("hand-down");
+  }
+  if (currHandBucket < _nHandStates - 1) {
+    actions.push_back("hand-up");
+  }
   return actions;
 }
 
-std::pair<std::vector<double>, double> CrawlingRobotEnvironment::DoAction(std::string &action) {
-  std::vector<double> nextState;
+std::pair<std::pair<double, double>, double> CrawlingRobotEnvironment::DoAction(std::string action) {
+  std::pair<int, int> nextState;
   double reward;
 
-  Position oldPos = _crawlingRobot->GetRobotPosition();
-  double armBucket = _state[0];
-  double handBucket = _state[1];
+  assert((_crawlingRobot != nullptr) && "_crawlingRobot is a nullptr");
+
+  std::pair<double, double> oldPos = _crawlingRobot->GetRobotPosition();
+
+  int armBucket = _state.first;
+  int handBucket = _state.second;
 
   double armAngle, handAngle;
   std::tie(armAngle, handAngle) = _crawlingRobot->GetAngles();
@@ -52,41 +64,45 @@ std::pair<std::vector<double>, double> CrawlingRobotEnvironment::DoAction(std::s
   if (action == "arm-up") {
     double newArmAngle = _armBuckets[armBucket + 1];
     _crawlingRobot->MoveArm(newArmAngle);
-    nextState[0] = armBucket + 1;
-    nextState[1] = handBucket;
+    nextState.first = armBucket + 1;
+    nextState.second = handBucket;
   }
   if (action == "arm-down") {
     double newArmAngle = _armBuckets[armBucket - 1];
     _crawlingRobot->MoveArm(newArmAngle);
-    nextState[0] = armBucket - 1;
-    nextState[1] = handBucket;
+    nextState.first = armBucket - 1;
+    nextState.second = handBucket;
   }
   if (action == "hand-up") {
     double newHandAngle = _handBuckets[handBucket + 1];
     _crawlingRobot->MoveHand(newHandAngle);
-    nextState[0] = armBucket;
-    nextState[1] = handBucket + 1;
+    nextState.first = armBucket;
+    nextState.second = handBucket + 1;
   }
   if (action == "hand-down") {
     double newHandAngle = _handBuckets[handBucket - 1];
     _crawlingRobot->MoveHand(newHandAngle);
-    nextState[0] = armBucket;
-    nextState[1] = handBucket - 1;
+    nextState.first = armBucket;
+    nextState.second = handBucket - 1;
   }
 
-  Position newPos = _crawlingRobot->GetRobotPosition();
-  reward = newPos.x - oldPos.x;
+  std::pair<double, double> newPos = _crawlingRobot->GetRobotPosition();
+  reward = newPos.first - oldPos.first;
 
   _state = nextState;
-  return std::pair<std::vector<double>, double>(nextState, reward);
+  return std::pair<std::pair<double, double>, double>(nextState, reward);
 }
 
 void CrawlingRobotEnvironment::Reset() {
-  double armState = _nArmStates / 2;
-  double handState = _nHandStates / 2;
-  _state[0] = armState;
-  _state[1] = handState;
+  int armState = _nArmStates / 2;
+  int handState = _nHandStates / 2;
+
+  _state.first = armState;
+  _state.second = handState;
+
   _crawlingRobot->SetAngles(_armBuckets[armState], _handBuckets[handState]);
+
+  _crawlingRobot->_positions.clear();
   _crawlingRobot->_positions.push_back(20);
-  _crawlingRobot->_positions.push_back(_crawlingRobot->GetRobotPosition().x);
+  _crawlingRobot->_positions.push_back(_crawlingRobot->GetRobotPosition().first);
 }
