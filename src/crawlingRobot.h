@@ -11,11 +11,6 @@
 #include <queue>     // deque
 #include <utility>   // pair
 
-struct Position {
-  double x;
-  double y;
-};
-
 class CrawlingRobot {
  public:
   CrawlingRobot();
@@ -32,7 +27,7 @@ class CrawlingRobot {
   std::pair<double, double> GetCosAndSin(double angle);
   std::pair<double, double> GetAngles();
   double GetRotationAngle();
-  Position GetRobotPosition();
+  std::pair<double, double> GetRobotPosition();
 
   // Robot update values
   void MoveArm(double newArmAngle);
@@ -40,18 +35,6 @@ class CrawlingRobot {
   /* */
   double Displacement(double oldArmDegree, double oldHandDegree,
                       double armDegree, double handDegree);
-  // Getters & setters for control variables (spin controls)
-
-  double GetLearningRate();
-  double GetStepDelay();
-  double GetDiscount();
-  double GetEpsilon();
-
-  void SetLearningRate(double learningRate);
-  void SetStepDelay(double stepDelay);
-  void SetDiscount(double discount);
-  void SetEpsilon(double epsilon);
-
   /* Canvas */
   double _velAvg;
   double _lastStep;
@@ -71,7 +54,7 @@ class CrawlingRobot {
   /* Robot Body */
   double _robotWidth;
   double _robotHeight;
-  Position _robotPos;
+  std::pair<double, double> _robotPos;
 
   /* Robot Arm */
   double _armLength;
@@ -87,13 +70,6 @@ class CrawlingRobot {
   double _groundY{500 - 196};  // windowHeight - groundHeight = top of bottomPanel
   int _windowWidth{900};
   int _windowHeight{500};
-
- private:
-  // Control variables (passed into the GUI's spin control panel)
-  double _learningRate{0.8};
-  double _stepDelay{1};
-  double _discount{0.8};
-  double _epsilon{0.5};
 };
 
 #endif /* CRAWLINGROBOT_H */

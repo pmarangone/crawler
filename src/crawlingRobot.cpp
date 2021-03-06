@@ -14,8 +14,7 @@ CrawlingRobot::CrawlingRobot() {
   /* Robot Body */
   _robotWidth = 80;
   _robotHeight = 40;
-  _robotPos.x = 20;
-  _robotPos.y = _groundY;
+  _robotPos = std::pair<double, double>(20, _groundY);
 
   /* Robot Arm */
   _armLength = 60;
@@ -25,6 +24,7 @@ CrawlingRobot::CrawlingRobot() {
 
   _positions = std::deque<int>{0, 0};
   _lastStep = 0;
+  _velAvg = 0;
 }
 
 CrawlingRobot::CrawlingRobot(const CrawlingRobot &source) {
@@ -62,7 +62,6 @@ CrawlingRobot &CrawlingRobot::operator=(CrawlingRobot &&source) {
   _oldHandDegree = source._oldHandDegree;
   _robotPos = source._robotPos;
   _positions = source._positions;
-
   return *this;
 }
 
@@ -77,7 +76,11 @@ std::pair<double, double> CrawlingRobot::GetAngles() {
   return std::pair<double, double>(_armAngle, _handAngle);
 }
 
-Position CrawlingRobot::GetRobotPosition() {
+/*
+ TODO: must return the same y than the python version
+      try to get the same first two values
+*/
+std::pair<double, double> CrawlingRobot::GetRobotPosition() {
   /*
    * returns the (x,y) coordinates
    * of the lower-left point of the
@@ -96,10 +99,10 @@ void CrawlingRobot::MoveArm(double newArmAngle) {
 
   // double oldArmAngle = _armAngle; <- use case?
   double disp = Displacement(_armAngle, _handAngle, newArmAngle, _handAngle);
-  _robotPos.x = _robotPos.x + disp;
+  _robotPos.first = _robotPos.first + disp;
   _armAngle = newArmAngle;
 
-  double lastPos = GetRobotPosition().x;
+  double lastPos = GetRobotPosition().first;
   _positions.push_back(lastPos);
 
   if (_positions.size() > 100) _positions.pop_front();
@@ -114,10 +117,10 @@ void CrawlingRobot::MoveHand(double newHandAngle) {
 
   // double oldHandAngle = _handAngle; <- use case?
   double disp = Displacement(_armAngle, _handAngle, _armAngle, newHandAngle);
-  _robotPos.x = _robotPos.x + disp;
+  _robotPos.first = _robotPos.first + disp;
   _handAngle = newHandAngle;
 
-  double lastPos = GetRobotPosition().x;
+  double lastPos = GetRobotPosition().first;
   _positions.push_back(lastPos);
   if (_positions.size() > 100) _positions.pop_front();
 }
@@ -159,48 +162,25 @@ double CrawlingRobot::Displacement(double oldArmDegree, double oldHandDegree, do
   std::tie(handCos, handSin) = GetCosAndSin(handDegree);
   std::tie(oldHandCos, oldHandSin) = GetCosAndSin(oldHandDegree);
 
-  double xOld = _armLength * oldArmCos * _handLength * oldHandCos * _robotWidth;
-  double yOld = _armLength * oldArmSin * _handLength * oldHandSin * _robotHeight;
+  double xOld = _armLength * oldArmCos + _handLength * oldHandCos + _robotWidth;
+  double yOld = _armLength * oldArmSin + _handLength * oldHandSin + _robotHeight;
 
-  double x = _armLength * armCos * _handLength * handCos * _robotWidth;
-  double y = _armLength * armSin * _handLength * handSin * _robotHeight;
+  double x = _armLength * armCos + _handLength * handCos + _robotWidth;
+  double y = _armLength * armSin + _handLength * handSin + _robotHeight;
 
   if (y < 0) {
     if (yOld <= 0) {
       return sqrt((xOld * xOld) + (yOld * yOld)) - sqrt((x * x) + (y * y));
     }
-    return (xOld - yOld * (x - xOld) / (yOld - y)) - sqrt((x * x) + (y * y));
+    return (xOld - yOld * (x - xOld) / (y - yOld)) - sqrt((x * x) + (y * y));
   } else {
     if (yOld >= 0) {
       return 0.0;
     }
-    return -(x - y * (xOld - x) / (yOld - y)) +
-           sqrt((xOld * xOld) + (yOld * yOld));
+
+    return -(x - y * (xOld - x) / (yOld - y)) + sqrt((xOld * xOld) + (yOld * yOld));
   }
 
   assert(0 == 1 && "Should never happen!");
   return 0.0;
-}
-
-// Getters & setters for control variables (spin controls)
-double CrawlingRobot::GetLearningRate() { return this->_learningRate; }
-double CrawlingRobot::GetStepDelay() { return this->_stepDelay; }
-double CrawlingRobot::GetDiscount() { return this->_discount; }
-double CrawlingRobot::GetEpsilon() { return this->_epsilon; }
-
-void CrawlingRobot::SetLearningRate(double learningRate) {
-  this->_learningRate = learningRate;
-  std::cout << "Robot's _learningRate: " << this->_learningRate << std::endl;  // TODO(SK): delete when tested
-}
-void CrawlingRobot::SetStepDelay(double stepDelay) {
-  this->_stepDelay = stepDelay;
-  std::cout << "Robot's _stepDelay: " << this->_stepDelay << std::endl;  // TODO(SK): delete when tested
-}
-void CrawlingRobot::SetDiscount(double discount) {
-  this->_discount = discount;
-  std::cout << "Robot's _discount: " << this->_discount << std::endl;  // TODO(SK): delete when tested
-}
-void CrawlingRobot::SetEpsilon(double epsilon) {
-  this->_epsilon = epsilon;
-  std::cout << "Robot's _epsilon: " << this->_epsilon << std::endl;  // TODO(SK): delete when tested
 }
