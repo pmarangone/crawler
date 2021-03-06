@@ -18,7 +18,7 @@ Graphics::Graphics(wxPanel *parent, std::shared_ptr<CrawlingRobot> &robot, int w
                wxSize(width, height)),
       _width(width),
       _height(height),
-      _robot(robot) {
+      _robot(std::move(robot)) {
   this->SetBackgroundStyle(wxBG_STYLE_PAINT);
 }
 
@@ -88,7 +88,7 @@ void Graphics::paintNow() {
 void Graphics::Notify() { Refresh(); }
 
 void Graphics::Render(wxDC &dc) {
-  int x1 = _robot->_robotPos.x, y1 = _robot->_robotPos.y;
+  int x1 = _robot->_robotPos.first, y1 = _robot->_robotPos.second;
   x1 = x1 % _robot->_windowWidth;
 
   double rotationAngle = _robot->GetRotationAngle();
@@ -134,5 +134,5 @@ void Graphics::Render(wxDC &dc) {
   dc.SetBrush(*wxRED_BRUSH);
   dc.DrawLine(xArm, yArm, xHand, yHand);
 
-  _robot->_robotPos.x += 1;
+  _robot->_robotPos.first += 1;
 }
