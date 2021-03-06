@@ -28,8 +28,7 @@ MainFrame::MainFrame(const wxString &title,
                      const wxSize &size = GUI::windowSize,
                      long style = GUI::windowStyleNonResizable)
     : wxFrame(NULL, wxID_ANY, title, pos, size, style),
-      _graphics(nullptr),
-      _robot(std::make_shared<CrawlingRobot>()) {
+      _graphics(nullptr) {
   // GUI initialization:
   // Init menu
   InitMenu();
@@ -38,8 +37,15 @@ MainFrame::MainFrame(const wxString &title,
   InitPanelBottom();
   InitPanelGraphics();  // both graphics panel and Graphics instance are initialized inside
   LaunchRenderer();     // launch renderer
-  InitEnvironment();    // instantiate robot environment
-  InitAppLayout();      // fit all GUI elements into the main app window
+  // InitEnvironment();    // instantiate robot environment
+  InitLearner();
+  InitAppLayout();  // fit all GUI elements into the main app window
+
+  _robot = std::make_shared<CrawlingRobot>();
+  _robotEnvironment = std::make_shared<CrawlingRobotEnvironment>(_robot);
+
+  th = std::thread(&MainFrame::Run, this);
+  th.detach();
 }
 
 MainFrame::~MainFrame() {
@@ -130,21 +136,21 @@ void MainFrame::InitPanelBottom() {
 
   _ctrlLearningRate->SetDigits(3);  // sets precision of the value of the spin control.
   _ctrlLearningRate->SetIncrement(0.05);
-  _ctrlLearningRate->SetValue(_robot->GetLearningRate());
+  _ctrlLearningRate->SetValue(_learningRate);
 
   _ctrlStepDelay->SetDigits(3);
   _ctrlStepDelay->SetIncrement(0.05);
-  _ctrlStepDelay->SetValue(_robot->GetStepDelay());
+  _ctrlStepDelay->SetValue(_stepDelay);
 
   _ctrlDiscount->SetDigits(3);
   _ctrlDiscount->SetRange(0.0, 1.0);
   _ctrlDiscount->SetIncrement(0.05);
-  _ctrlDiscount->SetValue(_robot->GetDiscount());
+  _ctrlDiscount->SetValue(_discount);
 
   _ctrlEpsilon->SetDigits(3);
   _ctrlEpsilon->SetRange(0.0, 1.0);
   _ctrlEpsilon->SetIncrement(0.05);
-  _ctrlEpsilon->SetValue(_robot->GetEpsilon());
+  _ctrlEpsilon->SetValue(_epsilon);
 
   _sizerLearningRate->Add(new wxStaticText(_panelBottom, wxID_ANY, wxT("Learning Rate:")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 3);
   _sizerLearningRate->Add(_ctrlLearningRate, 0, wxALIGN_CENTER, 0);
@@ -164,7 +170,6 @@ void MainFrame::InitPanelBottom() {
 
   _panelBottom->SetSizerAndFit(_sizerBottomCV);
 };
-
 void MainFrame::InitPanelGraphics() {
   // Create the graphics panel
   _panelGraphics = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::bitmapHeight));
@@ -192,8 +197,19 @@ void MainFrame::InitAppLayout() {
 }
 
 void MainFrame::InitEnvironment() {
-  _robotEnvironment = std::make_shared<CrawlingRobotEnvironment>(CrawlingRobotEnvironment(_robot));
+  _robotEnvironment = std::make_shared<CrawlingRobotEnvironment>(_robot);
 }
+
+void MainFrame::InitLearner() {
+  _learner = std::make_unique<QLearningAgent>(
+      [u = move(_robotEnvironment)](std::pair<int, int> state) {
+        return u->GetPossibleActions(state);
+      });
+  _learner->SetLearningRate(_learningRate);
+  _learner->SetDiscount(_discount);
+  _learner->SetEpsilon(_epsilon);
+}
+
 // Behavioral methods
 void MainFrame::LaunchRenderer() {
   // Launch renderer
@@ -240,6 +256,10 @@ void MainFrame::OnClick(wxCommandEvent &event) {  // for events objects deriving
   // event.Skip();  // force event propagation to the next EVT_BUTTON event in the table (omit, if you put EVT_BUTTON(wxID_ANY, MainFrame::OnClick) in the bottom of the event table)
 }
 
+double MainFrame::Sigmoid(double x) {
+  return 1.0 / (1.0 + pow(2.0, -x));
+}
+
 // Spin control event handlers
 void MainFrame::OnSpinCtrl(wxSpinDoubleEvent &event) {
   const int id = event.GetId();
@@ -247,26 +267,28 @@ void MainFrame::OnSpinCtrl(wxSpinDoubleEvent &event) {
   switch (id) {
     case ID::SPIN_LEARNINGRATE: {
       std::cout << "SPIN_LEARNINGRATE: "
-                << event.GetValue() << std::endl;
-      _robot->SetLearningRate(value);
+                << value << std::endl;
+      _learningRate = value;
+      _learner->SetLearningRate(value);
       break;
     }
     case ID::SPIN_STEPDELAY: {
       std::cout << "SPIN_STEPDELAY: "
-                << event.GetValue() << std::endl;
-      _robot->SetStepDelay(value);
+                << value << std::endl;
       break;
     }
     case ID::SPIN_DISCOUNT: {
       std::cout << "SPIN_DISCOUNT: "
-                << event.GetValue() << std::endl;
-      _robot->SetDiscount(value);
+                << value << std::endl;
+      _discount = value;
+      _learner->SetDiscount(value);
       break;
     }
     case ID::SPIN_EPSILON: {
       std::cout << "SPIN_EPSILON: "
-                << event.GetValue() << std::endl;
-      _robot->SetEpsilon(value);
+                << value << std::endl;
+      _epsilon = value;
+      _learner->SetEpsilon(value);
       break;
     }
     default:
@@ -274,4 +296,60 @@ void MainFrame::OnSpinCtrl(wxSpinDoubleEvent &event) {
       // TODO(SK): handle or disable
       event.StopPropagation();
   }
+}
+
+void MainFrame::Step() {
+  _stepCount += 1;
+
+  std::pair<int, int> state = _robotEnvironment->GetCurrentState();
+  std::vector<std::string> actions = _robotEnvironment->GetPossibleActions(state);
+
+  if (actions.empty()) {
+    _robotEnvironment->Reset();
+    state = _robotEnvironment->GetCurrentState();
+    actions = _robotEnvironment->GetPossibleActions(state);
+    std::cout << "Reset!\n";
+  }
+
+  std::string action = _learner->GetAction(state);
+  assert((action != "") && "Code Not Complete");
+
+  std::pair<int, int> nextState;
+  double reward;
+
+  std::tie(nextState, reward) = _robotEnvironment->DoAction(action);
+  _learner->ObserveTransition(state, action, nextState, reward);
+}
+
+template <class T>
+const T MainFrame::Max(const T &a, const T &b) {
+  return (a > b ? a : b);
+}
+
+int cnt = 0;
+
+void MainFrame::Run() {
+  std::cout << "Second thread ID: " << std::this_thread::get_id() << std::endl;
+
+  _stepCount = 0;
+  _learner->StartEpisode();
+  while (true) {
+    cnt++;
+
+    double minSleep = 0.01;
+    int tm = Max(minSleep, _stepDelay) * 100;
+    std::this_thread::sleep_for(std::chrono::milliseconds(tm));
+    _stepsToSkip = static_cast<int>(tm / _stepDelay) - 1;
+
+    if (!_running) {
+      _stopped = true;
+      return;
+    }
+    for (int i = 0; i < _stepsToSkip; i++) {
+      Step();
+    }
+    _stepsToSkip = 0;
+    Step();
+  }
+  _learner->StopEpisode();
 }

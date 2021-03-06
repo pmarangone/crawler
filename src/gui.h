@@ -6,9 +6,13 @@
 #include <wx/statbox.h>   // wxStaticBox
 #include <wx/wxprec.h>
 
+#include <chrono>
+#include <future>
 #include <iostream>
 #include <memory>
 #include <string>
+
+#include "qLearningAgent.h"
 
 // For compilers that support precompilation, includes "wx/wx.h"; this global header already includes wx/wx.h
 #ifndef WX_PRECOMP
@@ -61,6 +65,7 @@ class MainFrame : public wxFrame {
   void InitPanelGraphics();
   void InitGraphics(wxPanel *parent);
   void InitAppLayout();  // fits all panels and their nested sizers into the main sizer in the main frame
+  void InitLearner();
   // Behavioral methods
   void LaunchRenderer();
   void InitEnvironment();
@@ -76,11 +81,19 @@ class MainFrame : public wxFrame {
   void OnClick(wxCommandEvent &event);
   // Spin controls
   void OnSpinCtrl(wxSpinDoubleEvent &event);  // handles all controls
-
+  // Update spin variables
+  double Sigmoid(double x);
+  // Episodes controls
+  void Step();
+  void Run();
+  template <class T>
+  const T Max(const T &a, const T &b);
   // Private variables
   // Crawling robot
   std::shared_ptr<CrawlingRobot> _robot{nullptr};
   std::shared_ptr<CrawlingRobotEnvironment> _robotEnvironment{nullptr};
+  std::unique_ptr<QLearningAgent> _learner{nullptr};
+  std::thread th;
   // Graphics
   std::unique_ptr<Graphics> _graphics;
   // GUI parts (in case there is a need for dynamic GUI)
@@ -118,6 +131,22 @@ class MainFrame : public wxFrame {
   wxSpinCtrlDouble *_ctrlStepDelay{nullptr};
   wxSpinCtrlDouble *_ctrlDiscount{nullptr};
   wxSpinCtrlDouble *_ctrlEpsilon{nullptr};
+  // Spins values (bottom panel)
+  double _learningRate{0.8};
+  double _stepDelay{0.2};
+  double _discount{0.8};
+  double _epsilon{0.5};
+  // Episodes values
+  int _stepsToSkip{0};
+  int _stepCount{0};
+  bool _running{true};
+  bool _stopped{false};
+
+  // Getters and Setters of Spins
+  void SetLearningRate(double learningRate);
+  void SetStepDelay(double stepDelay);
+  void SetDiscount(double discount);
+  void SetEpsilon(double epsilon);
   // Event table declaration for the MainFrame class
   wxDECLARE_EVENT_TABLE();
 };
