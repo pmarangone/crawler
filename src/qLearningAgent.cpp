@@ -1,38 +1,97 @@
 #include "qLearningAgent.h"
 
-QLearningAgent::QLearningAgent() {}
+QLearningAgent::QLearningAgent(std::function<std::vector<std::string>(std::pair<double, double>)> actionFn)
+    : ReinforcementAgent(actionFn), _actionFn(actionFn) {}
 QLearningAgent::~QLearningAgent() {}
 
-double QLearningAgent::computeValueFromQValues(std::vector<double> state) { return 0; }
+double QLearningAgent::computeValueFromQValues(std::pair<int, int> state) {
+  double maxQ = INT_MIN;
 
-std::string QLearningAgent::computeActionFromQValues(std::vector<double> state) {
-  return std::string();
+  std::vector<std::string> legalActions = GetLegalActions(state);
+  if (legalActions.empty()) {
+    return 0.0;
+  }
+
+  for (auto action : legalActions) {
+    auto qValue = GetQValue(state, action);
+    if (qValue > maxQ) {
+      maxQ = qValue;
+    }
+  }
+  return maxQ;
 }
 
-void QLearningAgent::Update(std::vector<double> state, std::string action, std::vector<double> nextState, double reward) {}
+std::string QLearningAgent::computeActionFromQValues(std::pair<int, int> state) {
+  std::vector<std::string> legalActions = GetLegalActions(state);
+  if (legalActions.empty()) return NULL;
 
-double QLearningAgent::GetQValue(std::vector<double> state, std::string action) {
-  return 0;
+  double optiQ = INT_MIN;
+  std::string optiAct;
+  for (auto action : legalActions) {
+    double tempQ = GetQValue(state, action);
+    if (optiQ < tempQ) {
+      optiQ = tempQ;
+      optiAct = action;
+    }
+  }
+
+  return optiAct;
 }
 
-void QLearningAgent::SetQValue(std::vector<double> state, std::string action, double value) {}
-
-std::string QLearningAgent::GetAction(std::vector<double> state) {
-  return std::string();
+void QLearningAgent::Update(std::pair<int, int> state, std::string action, std::pair<int, int> nextState, double reward) {
+  double oldQ = GetQValue(state, action);
+  double sample = reward + (_discount * GetValue(nextState));
+  double newQVal = ((1 - _alpha) * oldQ) + (_alpha * sample);
+  SetQValue(state, action, newQVal);
 }
 
-std::string QLearningAgent::GetPolicy(std::vector<double> state) {
-  return std::string();
+double QLearningAgent::GetQValue(std::pair<int, int> state, std::string action) {
+  std::string index = std::to_string(state.first) + std::to_string(state.second) + action;
+  return _values[index];
 }
 
-double QLearningAgent::GetValue(std::vector<double> state) {
-  return 0;
+void QLearningAgent::SetQValue(std::pair<int, int> state, std::string action, double value) {
+  std::string index = std::to_string(state.first) + std::to_string(state.second) + action;
+  _values[index] = value;
+}
+
+std::string QLearningAgent::GetAction(std::pair<int, int> state) {
+  std::vector<std::string> legalActions = GetLegalActions(state);
+  std::string action{};
+
+  bool route = FlipCoin(_epsilon);
+  if (route) {
+    action = RandomChoice(legalActions);
+  } else {
+    action = computeActionFromQValues(state);
+  }
+
+  return action;
+}
+
+std::string QLearningAgent::GetPolicy(std::pair<int, int> state) {
+  return computeActionFromQValues(state);
+}
+
+double QLearningAgent::GetValue(std::pair<int, int> state) {
+  return computeValueFromQValues(state);
 }
 
 bool QLearningAgent::FlipCoin(int p) {
-  return true;
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> d(0, 1);
+
+  return d(gen) < p;
 }
 
 std::string QLearningAgent::RandomChoice(std::vector<std::string> actions) {
-  return std::string();
+  assert((!actions.empty()) && "Invalid operation. List cannot be empty");
+
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> d(0, actions.size() - 1);
+
+  int idx = d(gen);
+  return actions[idx];
 }
