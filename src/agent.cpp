@@ -1,31 +1,62 @@
 #include "agent.h"
 
-ReinforcementAgent::ReinforcementAgent() {}
+ReinforcementAgent::ReinforcementAgent(
+    std::function<std::vector<std::string>(std::pair<double, double>)> actionFn) : _actionFn(actionFn) {}
 
 ReinforcementAgent::ReinforcementAgent(int numTraining = 100, double epsilon = 0.5, double alpha = 0.5, double gamma = 1)
     : _numTraining(numTraining), _epsilon(epsilon), _alpha(alpha), _discount(gamma) {}
 
 ReinforcementAgent::~ReinforcementAgent() {}
 
-std::vector<std::string> ReinforcementAgent::GetLegalActions(std::vector<double> state) {
-  return std::vector<std::string>();
+std::vector<std::string> ReinforcementAgent::GetLegalActions(std::pair<int, int> state) {
+  return _actionFn(state);
 }
 
-void ReinforcementAgent::ObserveTransition(std::vector<double> state, std::string action, std::vector<double> nextState, double deltaReward) {}
+void ReinforcementAgent::ObserveTransition(std::pair<int, int> state, std::string action, std::pair<int, int> nextState, double deltaReward) {
+  _episodeRewards += deltaReward;
+  Update(state, action, nextState, deltaReward); /* QLearningAgent must override this function in order to it work */
+}
 
-void ReinforcementAgent::StartEpisode() {}
+void ReinforcementAgent::StartEpisode() {
+  _lastState.first = 0;
+  _lastState.second = 0;
+  _lastAction = "";
+  _episodeRewards = 0;
+}
 
-void ReinforcementAgent::StopEpisode() {}
+void ReinforcementAgent::StopEpisode() {
+  if (_episodesSoFar < _numTraining) {
+    _accumTrainRewards += _episodeRewards;
+  } else {
+    _accumTestRewards += _episodeRewards;
+  }
+
+  _episodesSoFar += 1;
+
+  if (_episodesSoFar >= _numTraining) {
+    _epsilon = 0;
+    _alpha = 0;
+  }
+}
 
 bool ReinforcementAgent::IsInTraning() {
-  return true;
+  return _episodesSoFar < _numTraining;
 }
 
 bool ReinforcementAgent::IsInTesting() {
-  return true;
+  return !IsInTraning();
 }
 
-void ReinforcementAgent::SetEpsilon(double epsilon) {}
-void ReinforcementAgent::SetLearningRate(double alpha) {}
-void ReinforcementAgent::SetDiscount(double gamma) {}
-void ReinforcementAgent::DoAction(std::vector<double> state, std::string action) {}
+void ReinforcementAgent::SetEpsilon(double epsilon) {
+  _epsilon = epsilon;
+}
+void ReinforcementAgent::SetLearningRate(double alpha) {
+  _alpha = alpha;
+}
+void ReinforcementAgent::SetDiscount(double gamma) {
+  _discount = gamma;
+}
+void ReinforcementAgent::DoAction(std::pair<int, int> state, std::string action) {
+  _lastState = state;
+  _lastAction = action;
+}

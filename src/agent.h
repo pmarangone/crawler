@@ -2,16 +2,18 @@
 #define AGENT_H
 
 #include <functional>
+#include <iostream>
 #include <string>
+#include <tuple>
 #include <vector>
 
 class ReinforcementAgent {
  public:
-  ReinforcementAgent();
+  ReinforcementAgent(std::function<std::vector<std::string>(std::pair<double, double>)> actionFn);
   ReinforcementAgent(int numTraining, double epsilon, double alpha, double gamma);
   ~ReinforcementAgent();
-  std::vector<std::string> GetLegalActions(std::vector<double> state);
-  void ObserveTransition(std::vector<double> state, std::string action, std::vector<double> nextState, double deltaReward);
+  std::vector<std::string> GetLegalActions(std::pair<int, int> state);
+  void ObserveTransition(std::pair<int, int> state, std::string action, std::pair<int, int> nextState, double deltaReward);
   void StartEpisode();
   void StopEpisode();
   bool IsInTraning();
@@ -19,10 +21,10 @@ class ReinforcementAgent {
   void SetEpsilon(double epsilon);
   void SetLearningRate(double alpha);
   void SetDiscount(double gamma);
-  void DoAction(std::vector<double> state, std::string action);
-  virtual void Update(std::vector<double> state, std::string action, std::vector<double> nextState, double deltaReward) = 0;
+  void DoAction(std::pair<int, int> state, std::string action);
+  virtual void Update(std::pair<int, int> state, std::string action, std::pair<int, int> nextState, double deltaReward) = 0;
 
-  std::function<std::vector<std::string>(std::vector<int>)> _actionFn;
+  std::function<std::vector<std::string>(std::pair<double, double>)> _actionFn;
 
   int _episodesSoFar{0};
   double _episodeRewards{0};
@@ -33,7 +35,8 @@ class ReinforcementAgent {
   double _alpha;
   double _discount;
 
-  std::vector<double> _lastState;
+  // TODO: update all states from vector to pairs
+  std::pair<int, int> _lastState{0, 0};
   std::string _lastAction;
 };
 
