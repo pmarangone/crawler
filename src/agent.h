@@ -30,10 +30,10 @@ class ReinforcementAgent {
   double _episodeRewards{0};
   double _accumTrainRewards{0};
   double _accumTestRewards{0};
-  int _numTraining;
-  double _epsilon;
-  double _alpha;
-  double _discount;
+  int _numTraining{100};
+  double _epsilon{0.5};
+  double _alpha{0.5};
+  double _discount{1};
 
   // TODO: update all states from vector to pairs
   std::pair<int, int> _lastState{0, 0};

@@ -178,7 +178,7 @@ void MainFrame::InitPanelGraphics() {
   InitGraphics(_panelGraphics);
   // Create the graphics sizer and move _graphics in there
   _sizerGraphics = new wxBoxSizer(wxVERTICAL);
-  _sizerGraphics->Add(_graphics->GetRenderSurface(), 1, wxALIGN_CENTER);
+  _sizerGraphics->Add(_graphics.get(), 1, wxALIGN_CENTER);
   _panelGraphics->SetSizerAndFit(_sizerGraphics);
   // Layout(); // resize element to cover the entire window: https://docs.wxwidgets.org/trunk/classwx_top_level_window.html#adfe7e3f4a32f3ed178968f64431bbfe0
 };

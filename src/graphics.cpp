@@ -64,18 +64,12 @@ void Graphics::SetTimerOwner(wxFrame *frame) {
 void Graphics::InitLoop() {
   _timer.Start(17, wxTIMER_CONTINUOUS);  // 17 = approx. 60 frames per second; 10 = 100 frames per second
 }
-void Graphics::InitLoop(unsigned int t, bool oneShot) {  // t = milliseconds, oneSHot = wxTIMER_CONTINUOUS (while loop alternative) or wxTIMER_ONE_SHOT; https://docs.wxwidgets.org/trunk/classwx_timer.html
-  _timer.Start(t, oneShot);
-}
-
-// Getters
-wxWindow *Graphics::GetRenderSurface() {
-  return this;
+void Graphics::InitLoop(unsigned int t, bool isOneShot) {  // t = milliseconds, oneSHot = wxTIMER_CONTINUOUS (while loop alternative) or wxTIMER_ONE_SHOT; https://docs.wxwidgets.org/trunk/classwx_timer.html
+  _timer.Start(t, isOneShot);
 }
 
 // Behavioral methods
-
-void Graphics::paintEvent(wxPaintEvent &evt) {
+void Graphics::paintEvent(wxPaintEvent &event) {
   wxPaintDC dc(this);
   Render(dc);
 }
@@ -85,7 +79,9 @@ void Graphics::paintNow() {
   Render(dc);
 }
 
-void Graphics::Notify() { Refresh(); }
+void Graphics::Notify() {
+  Refresh();
+}
 
 void Graphics::Render(wxDC &dc) {
   int x1 = _robot->_robotPos.first, y1 = _robot->_robotPos.second;

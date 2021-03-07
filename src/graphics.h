@@ -34,13 +34,11 @@ class Graphics : public wxWindow {
   virtual ~Graphics();
   // Setters
   void SetTimerOwner(wxFrame *frame);
-  void InitLoop();
-  void InitLoop(unsigned int t, bool oneShot);
-  // Getters
-  wxWindow *GetRenderSurface();
   // Behavioral methods
+  void InitLoop();
+  void InitLoop(unsigned int t, bool isOneShot);
   void Render(wxDC &dc);
-  void paintEvent(wxPaintEvent &evt);
+  void paintEvent(wxPaintEvent &event);
   void paintNow();
   void Notify();
 

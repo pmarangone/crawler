@@ -1,10 +1,11 @@
 #include "agent.h"
 
-ReinforcementAgent::ReinforcementAgent(
-    std::function<std::vector<std::string>(std::pair<double, double>)> actionFn) : _actionFn(actionFn) {}
+ReinforcementAgent::ReinforcementAgent(std::function<std::vector<std::string>(std::pair<double, double>)> actionFn)
+    : _actionFn(actionFn) {}
 
-ReinforcementAgent::ReinforcementAgent(int numTraining = 100, double epsilon = 0.5, double alpha = 0.5, double gamma = 1)
-    : _numTraining(numTraining), _epsilon(epsilon), _alpha(alpha), _discount(gamma) {}
+ReinforcementAgent::ReinforcementAgent(int numTraining, double epsilon, double alpha, double gamma)
+    : _numTraining(numTraining), _epsilon(epsilon), _alpha(alpha), _discount(gamma) {
+}
 
 ReinforcementAgent::~ReinforcementAgent() {}
 
