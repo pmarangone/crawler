@@ -93,10 +93,10 @@ std::pair<double, double> CrawlingRobot::GetRobotPosition() {
 void CrawlingRobot::MoveArm(double newArmAngle) {
   // TODO: rewrite message
   std::cout << "newArmAngle: " << newArmAngle << std::endl;
-  assert((newArmAngle < _maxArmAngle) &&
-         "Crawling Robot: Arm Raised too high. Careful!");
-  assert((newArmAngle > _minArmAngle) &&
-         "Crawling Robot: Arm Raised too low. Careful!");
+  // assert((newArmAngle < _maxArmAngle) &&
+  //        "Crawling Robot: Arm Raised too high. Careful!");
+  // assert((newArmAngle > _minArmAngle) &&
+  //        "Crawling Robot: Arm Raised too low. Careful!");
 
   // double oldArmAngle = _armAngle; <- use case?
   double disp = Displacement(_armAngle, _handAngle, newArmAngle, _handAngle);
@@ -111,10 +111,10 @@ void CrawlingRobot::MoveArm(double newArmAngle) {
 
 void CrawlingRobot::MoveHand(double newHandAngle) {
   // TODO: rewrite message
-  assert((newHandAngle < _maxHandAngle) &&
-         "Crawling Robot: Hand Raised too high. Careful!");
-  assert((newHandAngle > _minHandAngle) &&
-         "Crawling Robot: Hand Raised too low. Careful!");
+  // assert((newHandAngle < _maxHandAngle) &&
+  //        "Crawling Robot: Hand Raised too high. Careful!");
+  // assert((newHandAngle > _minHandAngle) &&
+  //        "Crawling Robot: Hand Raised too low. Careful!");
 
   // double oldHandAngle = _handAngle; <- use case?
   double disp = Displacement(_armAngle, _handAngle, _armAngle, newHandAngle);

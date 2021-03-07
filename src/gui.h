@@ -63,6 +63,7 @@ class MainFrame : public wxFrame {
   void InitPanelTop();
   void InitPanelBottom();
   void InitPanelGraphics();
+  void InitRobot();  // composite func of graphics
   void InitGraphics(wxPanel *parent);
   void InitAppLayout();  // fits all panels and their nested sizers into the main sizer in the main frame
   void InitLearner();
@@ -95,7 +96,7 @@ class MainFrame : public wxFrame {
   std::unique_ptr<QLearningAgent> _learner{nullptr};
   std::thread th;
   // Graphics
-  std::unique_ptr<Graphics> _graphics;
+  std::unique_ptr<Graphics> _graphics{nullptr};
   // GUI parts (in case there is a need for dynamic GUI)
   // Menu
   wxMenuBar *_menuBar{nullptr};

@@ -27,8 +27,7 @@ MainFrame::MainFrame(const wxString &title,
                      const wxPoint &pos = GUI::windowPosition,
                      const wxSize &size = GUI::windowSize,
                      long style = GUI::windowStyleNonResizable)
-    : wxFrame(NULL, wxID_ANY, title, pos, size, style),
-      _graphics(nullptr) {
+    : wxFrame(NULL, wxID_ANY, title, pos, size, style) {
   // GUI initialization:
   // Init menu
   InitMenu();
@@ -40,9 +39,8 @@ MainFrame::MainFrame(const wxString &title,
   // InitEnvironment();    // instantiate robot environment
   InitLearner();
   InitAppLayout();  // fit all GUI elements into the main app window
+  std::cout << "MAIN THREAD –" << "Robot count: " << _robot.use_count() << ", " << _robot.get() << " and robotEnv count: " << _robotEnvironment.use_count() << ", " << _robotEnvironment.get() << "\n";
 
-  _robot = std::make_shared<CrawlingRobot>();
-  _robotEnvironment = std::make_shared<CrawlingRobotEnvironment>(_robot);
 
   // Runs episodes (agent)
   th = std::thread(&MainFrame::Run, this);
@@ -175,6 +173,8 @@ void MainFrame::InitPanelGraphics() {
   // Create the graphics panel
   _panelGraphics = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(GUI::bitmapWidth, GUI::bitmapHeight));
   _panelGraphics->SetBackgroundColour(GUI::middlePanelBgrColor);  // in case the bitmap width != window width
+  // Robot is a composite function of graphics and lives inside it
+  InitRobot();
   // Declare a Graphics object's instance
   InitGraphics(_panelGraphics);
   // Create the graphics sizer and move _graphics in there
@@ -183,6 +183,11 @@ void MainFrame::InitPanelGraphics() {
   _panelGraphics->SetSizerAndFit(_sizerGraphics);
   // Layout(); // resize element to cover the entire window: https://docs.wxwidgets.org/trunk/classwx_top_level_window.html#adfe7e3f4a32f3ed178968f64431bbfe0
 };
+
+void MainFrame::InitRobot() {
+  _robot = std::make_shared<CrawlingRobot>();
+  _robotEnvironment = std::make_shared<CrawlingRobotEnvironment>(_robot);
+}
 
 void MainFrame::InitGraphics(wxPanel *parent) {
   _graphics = std::make_unique<Graphics>(parent, _robot, GUI::bitmapWidth, GUI::bitmapHeight);
@@ -203,7 +208,7 @@ void MainFrame::InitEnvironment() {
 
 void MainFrame::InitLearner() {
   _learner = std::make_unique<QLearningAgent>(
-      [u = move(_robotEnvironment)](std::pair<int, int> state) {
+      [u = _robotEnvironment](std::pair<int, int> state) {
         return u->GetPossibleActions(state);
       });
   _learner->SetLearningRate(_learningRate);
@@ -331,6 +336,8 @@ int cnt = 0;
 
 void MainFrame::Run() {
   std::cout << "Second thread ID: " << std::this_thread::get_id() << std::endl;
+
+  std::cout << "SECOND THREAD –" << "Robot count: " << _robot.use_count() << " and robotEnv count: " << _robotEnvironment.use_count() << "\n";
 
   _stepCount = 0;
   _learner->StartEpisode();

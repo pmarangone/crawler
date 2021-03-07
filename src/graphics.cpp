@@ -18,7 +18,7 @@ Graphics::Graphics(wxPanel *parent, std::shared_ptr<CrawlingRobot> &robot, int w
                wxSize(width, height)),
       _width(width),
       _height(height),
-      _robot(std::move(robot)) {
+      _robot(robot) {
   this->SetBackgroundStyle(wxBG_STYLE_PAINT);
 }
 

@@ -23,6 +23,7 @@ CrawlingRobotEnvironment::CrawlingRobotEnvironment(std::shared_ptr<CrawlingRobot
 
 CrawlingRobotEnvironment::~CrawlingRobotEnvironment() {}
 std::pair<int, int> CrawlingRobotEnvironment::GetCurrentState() {
+  std::cout << "_state = {" << _state.first << ", " << _state.second << "}" << std::endl;
   return _state;
 }
 
