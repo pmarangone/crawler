@@ -44,6 +44,7 @@ MainFrame::MainFrame(const wxString &title,
   _robot = std::make_shared<CrawlingRobot>();
   _robotEnvironment = std::make_shared<CrawlingRobotEnvironment>(_robot);
 
+  // Runs episodes (agent)
   th = std::thread(&MainFrame::Run, this);
   th.detach();
 }

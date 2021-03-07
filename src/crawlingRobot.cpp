@@ -92,6 +92,7 @@ std::pair<double, double> CrawlingRobot::GetRobotPosition() {
 
 void CrawlingRobot::MoveArm(double newArmAngle) {
   // TODO: rewrite message
+  std::cout << "newArmAngle: " << newArmAngle << std::endl;
   assert((newArmAngle < _maxArmAngle) &&
          "Crawling Robot: Arm Raised too high. Careful!");
   assert((newArmAngle > _minArmAngle) &&
