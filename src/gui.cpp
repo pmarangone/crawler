@@ -10,6 +10,8 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
   // Buttons
 	EVT_BUTTON(ID::BTN_RUN, MainFrame::OnClickRun)	// run btn mouse click
 	EVT_BUTTON(ID::BTN_STOP, MainFrame::OnClickStop)	// stop btn mouse click
+	EVT_BUTTON(ID::SKIP30KSTEPS, MainFrame::OnSkip30K)	// skip 30K steps btn mouse click
+	EVT_BUTTON(ID::SKIP1000KSTEPS, MainFrame::OnSkip1000K)	// skip 1000K steps btn mouse click
 	EVT_BUTTON(wxID_ANY, MainFrame::OnClick)  // wxID_ANY here means we react the same way to all buttons; standard implementation should be in the bottom
   // Controls
   EVT_SPINCTRLDOUBLE(wxID_ANY, MainFrame::OnSpinCtrl)
@@ -21,7 +23,6 @@ wxEND_EVENT_TABLE()
 ;  // clang-format on
 
 // Main window
-
 // Constructor for a non-resizable window (use wxDEFAULT_FRAME_STYLE style for a resizable window)
 MainFrame::MainFrame(const wxString &title,
                      const wxPoint &pos = GUI::windowPosition,
@@ -95,8 +96,8 @@ void MainFrame::InitPanelTop() {
   _sizerMotion->Add(new wxButton(_panelTop, ID::BTN_RUN, wxString::FromUTF8("Run \u25B6")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
   _sizerMotion->Add(new wxButton(_panelTop, ID::BTN_STOP, wxString::FromUTF8("Stop \u25FC")), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
-  _sizerSteps->Add(new wxButton(_panelTop, wxID_ANY, "Skip 30K steps"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-  _sizerSteps->Add(new wxButton(_panelTop, wxID_ANY, "Skip 1000K steps"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  _sizerSteps->Add(new wxButton(_panelTop, ID::SKIP30KSTEPS, "Skip 30K steps"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+  _sizerSteps->Add(new wxButton(_panelTop, ID::SKIP1000KSTEPS, "Skip 1000K steps"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
 
   _sizerReset->Add(new wxButton(_panelTop, wxID_ANY, "Reset speed counter"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
   _sizerReset->Add(new wxButton(_panelTop, wxID_ANY, "Reset Q"), 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
@@ -137,8 +138,9 @@ void MainFrame::InitPanelBottom() {
   _ctrlLearningRate->SetIncrement(0.05);
   _ctrlLearningRate->SetValue(_learningRate);
 
-  _ctrlStepDelay->SetDigits(3);
-  _ctrlStepDelay->SetIncrement(0.05);
+  _ctrlStepDelay->SetDigits(0);
+  _ctrlStepDelay->SetRange(10, 1000);
+  _ctrlStepDelay->SetIncrement(10);
   _ctrlStepDelay->SetValue(_stepDelay);
 
   _ctrlDiscount->SetDigits(3);
@@ -202,10 +204,6 @@ void MainFrame::InitAppLayout() {
   SetSizerAndFit(_sizerMain);
 }
 
-void MainFrame::InitEnvironment() {
-  _robotEnvironment = std::make_shared<CrawlingRobotEnvironment>(_robot);
-}
-
 void MainFrame::InitLearner() {
   _learner = std::make_unique<QLearningAgent>(
       [u = _robotEnvironment](std::pair<int, int> state) {
@@ -250,11 +248,33 @@ void MainFrame::OnHello(wxCommandEvent &event) {
 
 // Button event handlers
 void MainFrame::OnClickRun(wxCommandEvent &event) {
+  if (_running) return;
+
+  _running = true;
+  _stopped = false;
+
+  th = std::thread(&MainFrame::Run, this);
+  th.detach();
   std::cout << "RUN btn clicked. ID: " << event.GetId() << std::endl;
 }
 
 void MainFrame::OnClickStop(wxCommandEvent &event) {
+  if (_stopped) return;
+
+  _running = false;
+  _stopped = true;
   std::cout << "STOP btn clicked. ID: " << event.GetId() << std::endl;
+}
+
+void MainFrame::OnSkip30K(wxCommandEvent &event){
+  _stepsToSkip = 30000;
+  std::cout << "OnSkip30K btn clicked. ID: " << event.GetId() << std::endl;
+  std::cout << "Step Count= " << _stepCount << std::endl;
+}
+void MainFrame::OnSkip1000K(wxCommandEvent &event){
+  _stepsToSkip = 1000000;
+  std::cout << "OnSkip1000K btn clicked. ID: " << event.GetId() << std::endl;
+  std::cout << "Step Count= " << _stepCount << std::endl;
 }
 
 void MainFrame::OnClick(wxCommandEvent &event) {  // for events objects deriving from wxCommandEvent, the events get propagated thru parent controls (current parent where e.g. a button is, i.e. widnow, panel, frame, etc.)
@@ -281,6 +301,7 @@ void MainFrame::OnSpinCtrl(wxSpinDoubleEvent &event) {
     case ID::SPIN_STEPDELAY: {
       std::cout << "SPIN_STEPDELAY: "
                 << value << std::endl;
+      _stepDelay = value;
       break;
     }
     case ID::SPIN_DISCOUNT: {
@@ -339,15 +360,14 @@ void MainFrame::Run() {
 
   std::cout << "SECOND THREAD –" << "Robot count: " << _robot.use_count() << " and robotEnv count: " << _robotEnvironment.use_count() << "\n";
 
-  _stepCount = 0;
   _learner->StartEpisode();
   while (true) {
     cnt++;
 
-    double minSleep = 0.01;
-    int tm = Max(minSleep, _stepDelay) * 100;
+    int minSleep = 10;
+    int tm = Max(minSleep, _stepDelay);
     std::this_thread::sleep_for(std::chrono::milliseconds(tm));
-    _stepsToSkip = static_cast<int>(tm / _stepDelay) - 1;
+    _stepsToSkip = Max(_stepsToSkip, static_cast<int>(tm / _stepDelay) - 1);
 
     if (!_running) {
       _stopped = true;

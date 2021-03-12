@@ -45,6 +45,8 @@ enum ID {  // No need to implement "About" and "Exit" (automatic)
   MENU_HELLO = wxID_LAST + 1,
   BTN_RUN,
   BTN_STOP,
+  SKIP30KSTEPS,
+  SKIP1000KSTEPS,
   SPIN_LEARNINGRATE,
   SPIN_STEPDELAY,
   SPIN_DISCOUNT,
@@ -69,7 +71,6 @@ class MainFrame : public wxFrame {
   void InitLearner();
   // Behavioral methods
   void LaunchRenderer();
-  void InitEnvironment();
   // Event handlers – no need to be virtual nor public
   void OnPaint(wxPaintEvent &event);
   // Menu
@@ -79,6 +80,8 @@ class MainFrame : public wxFrame {
   // Buttons
   void OnClickRun(wxCommandEvent &event);
   void OnClickStop(wxCommandEvent &event);
+  void OnSkip30K(wxCommandEvent &event);
+  void OnSkip1000K(wxCommandEvent &event);
   void OnClick(wxCommandEvent &event);
   // Spin controls
   void OnSpinCtrl(wxSpinDoubleEvent &event);  // handles all controls
@@ -134,9 +137,9 @@ class MainFrame : public wxFrame {
   wxSpinCtrlDouble *_ctrlEpsilon{nullptr};
   // Spins values (bottom panel)
   double _learningRate{0.8};
-  double _stepDelay{0.2};
   double _discount{0.8};
   double _epsilon{0.5};
+  int _stepDelay{100};
   // Episodes values
   int _stepsToSkip{0};
   int _stepCount{0};
