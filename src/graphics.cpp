@@ -129,6 +129,4 @@ void Graphics::Render(wxDC &dc) {
 
   dc.SetBrush(*wxRED_BRUSH);
   dc.DrawLine(xArm, yArm, xHand, yHand);
-
-  _robot->_robotPos.first += 1;
 }
