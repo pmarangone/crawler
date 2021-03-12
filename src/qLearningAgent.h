@@ -29,7 +29,7 @@ class QLearningAgent : public ReinforcementAgent {
   std::string GetAction(std::pair<int, int> state);
   std::string GetPolicy(std::pair<int, int> state);
   // utils
-  bool FlipCoin(int p);
+  bool FlipCoin(double p);
   std::string RandomChoice(std::vector<std::string> actions);
 
   std::function<std::vector<std::string>(std::pair<double, double>)> _actionFn;

@@ -77,12 +77,12 @@ double QLearningAgent::GetValue(std::pair<int, int> state) {
   return computeValueFromQValues(state);
 }
 
-bool QLearningAgent::FlipCoin(int p) {
+bool QLearningAgent::FlipCoin(double p) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> d(0, 1);
-
-  return d(gen) < p;
+  double x = d(gen);
+  return x < p;
 }
 
 std::string QLearningAgent::RandomChoice(std::vector<std::string> actions) {
