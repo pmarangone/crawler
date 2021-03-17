@@ -28,10 +28,10 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++ and wxWidge
   - [x] Wire up controls:
     - [x] Create and connect IDs and functions
     - [x] Set increment step sizes
-    - [x] Set default values (through CrawlingRobot)
+    - [x] Set default values (through Robot)
     - [x] Set min/max ranges
     - [x] Read values from spin controls
-    - [x] Pass values from spin controls to CrawlingRobot class instance living in the MainFrame (_robot)
+    - [x] Pass values from spin controls to Robot class instance living in the MainFrame (_robot)
 - [x] Refactor panels:
   - [x] Move all three panels to panels.h (canceled)
   - [x] Create two polymorph classes from wxPanel (TopPanel, BottomPanel) (canceled)
@@ -40,8 +40,8 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++ and wxWidge
   - [x] Destroy btn controls in the parent class destructor (top panel) (canceled)
   - [x] Destroy panels in the parent class destructor
 - [x] Ownership of control variables:
-  - [x] Move '_learningRate', '_discount' and '_epsilon' to CrawlingRobot
-  - [x] Transfer data to CrawlingRobot class
+  - [x] Move '_learningRate', '_discount' and '_epsilon' to Robot
+  - [x] Transfer data to Robot class
   - [x] Make control handles private class members
 - [x] Abstract away layout initialization process
   - [x] Create menu initialization function
@@ -70,10 +70,10 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++ and wxWidge
 - [ ] Learn wxWidgets' bitmap and rendering mechanism under the hood:
   - [ ] Consider [wxDC](https://docs.wxwidgets.org/3.1.4/classwx_d_c.html) and [wxBitmap](https://docs.wxwidgets.org/3.1.4/classwx_bitmap.html)
   - [x] **IMPORTANT:** Research **[what NOT to do and how to use](https://wiki.wxwidgets.org/Making_a_render_loop)** (and why) [wxTimer](https://docs.wxwidgets.org/trunk/classwx_timer.html) vs [Render Loop](https://wiki.wxwidgets.org/Making_a_render_loop)
-- [ ] Render a static floor
-- [ ] Render crawler's body:
-  - [ ] Create robot's body dimensions
-  - [ ] Create a function Body::walk() where the crawler walks automatically; for reference: [link](https://github.com/rwwaskk/CS188-Berkeley/blob/master/reinforcement/crawler.py)
+- [x] Render a static floor
+- [x] Render crawler's body:
+  - [x] Create robot's body dimensions
+  - [x] Create robot's arm and hand
 
 ## References & Resources
 
@@ -87,3 +87,11 @@ Custom homemade replica of Berkeley's CS188 class implemented in C++ and wxWidge
 ### wxWidgets bitmap resouces
 
 - [Drawing Sample](https://docs.wxwidgets.org/3.1.4/page_samples.html#page_samples_drawing), [wxDC](https://docs.wxwidgets.org/3.1.4/classwx_d_c.html), [wxBitmap](https://docs.wxwidgets.org/3.1.4/classwx_bitmap.html)
+
+### Temporal Difference and Q-Learning resources
+
+- [Stanford CS234: Reinforcement Learning - Model Free Control](https://www.youtube.com/watch?v=j080VBVGkfQ)
+- [RL Course by David Silver - Model Free Control](https://www.youtube.com/watch?v=0g4j2k_Ggc4)
+- [Reinforcement Learning Book (Ch. 6)](http://incompleteideas.net/book/RLbook2020.pdf)
+- [Udacity's Deep RL - Temporal Difference (notebook)](https://github.com/udacity/deep-reinforcement-learning/blob/master/temporal-difference/Temporal_Difference_Solution.ipynb)
+- [University of Alberta: RL Specialization](https://www.coursera.org/learn/sample-based-learning-methods?specialization=reinforcement-learning)
