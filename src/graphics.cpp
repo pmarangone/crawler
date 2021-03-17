@@ -11,7 +11,7 @@ Graphics::Graphics() : _width(1),
                        _height(1) {}
 
 // Overloaded default constructor
-Graphics::Graphics(wxPanel *parent, std::shared_ptr<CrawlingRobot> &robot, int width, int height)
+Graphics::Graphics(wxPanel *parent, std::shared_ptr<Robot> &robot, int width, int height)
     : wxWindow(parent,
                wxID_ANY,
                wxDefaultPosition,

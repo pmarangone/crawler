@@ -94,8 +94,8 @@ class MainFrame : public wxFrame {
   const T Max(const T &a, const T &b);
   // Private variables
   // Crawling robot
-  std::shared_ptr<CrawlingRobot> _robot{nullptr};
-  std::shared_ptr<CrawlingRobotEnvironment> _robotEnvironment{nullptr};
+  std::shared_ptr<Robot> _robot{nullptr};
+  std::shared_ptr<RobotEnvironment> _robotEnv{nullptr};
   std::unique_ptr<QLearningAgent> _learner{nullptr};
   std::thread th;
   // Graphics

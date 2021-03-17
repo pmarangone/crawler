@@ -1,7 +1,7 @@
-#include "crawlingRobot.h"
+#include "robot.h"
 
 // TODO: decide how draw function is implemented
-CrawlingRobot::CrawlingRobot() {
+Robot::Robot() {
   _armAngle = _oldArmDegree = 0.0;
   _handAngle = _oldHandDegree = -M_PI / 6;
 
@@ -27,7 +27,7 @@ CrawlingRobot::CrawlingRobot() {
   _velAvg = 0;
 }
 
-CrawlingRobot::CrawlingRobot(const CrawlingRobot &source) {
+Robot::Robot(const Robot &source) {
   _armAngle = source._armAngle;
   _oldArmDegree = source._oldArmDegree;
   _handAngle = source._handAngle;
@@ -35,7 +35,7 @@ CrawlingRobot::CrawlingRobot(const CrawlingRobot &source) {
   _robotPos = source._robotPos;
   _positions = source._positions;
 }
-CrawlingRobot &CrawlingRobot::operator=(const CrawlingRobot &source) {
+Robot &Robot::operator=(const Robot &source) {
   _armAngle = source._armAngle;
   _oldArmDegree = source._oldArmDegree;
   _handAngle = source._handAngle;
@@ -46,7 +46,7 @@ CrawlingRobot &CrawlingRobot::operator=(const CrawlingRobot &source) {
   return *this;
 }
 
-CrawlingRobot::CrawlingRobot(CrawlingRobot &&source) {
+Robot::Robot(Robot &&source) {
   _armAngle = source._armAngle;
   _oldArmDegree = source._oldArmDegree;
   _handAngle = source._handAngle;
@@ -55,7 +55,7 @@ CrawlingRobot::CrawlingRobot(CrawlingRobot &&source) {
   _positions = source._positions;
 }
 
-CrawlingRobot &CrawlingRobot::operator=(CrawlingRobot &&source) {
+Robot &Robot::operator=(Robot &&source) {
   _armAngle = source._armAngle;
   _oldArmDegree = source._oldArmDegree;
   _handAngle = source._handAngle;
@@ -65,18 +65,18 @@ CrawlingRobot &CrawlingRobot::operator=(CrawlingRobot &&source) {
   return *this;
 }
 
-CrawlingRobot::~CrawlingRobot() {}
+Robot::~Robot() {}
 
-void CrawlingRobot::SetAngles(double armAngle, double handAngle) {
+void Robot::SetAngles(double armAngle, double handAngle) {
   _armAngle = armAngle;
   _handAngle = handAngle;
 }
 
-std::pair<double, double> CrawlingRobot::GetAngles() {
+std::pair<double, double> Robot::GetAngles() {
   return std::pair<double, double>(_armAngle, _handAngle);
 }
 
-std::pair<double, double> CrawlingRobot::GetRobotPosition() {
+std::pair<double, double> Robot::GetRobotPosition() {
   /*
    * returns the (x,y) coordinates
    * of the lower-left point of the
@@ -86,7 +86,7 @@ std::pair<double, double> CrawlingRobot::GetRobotPosition() {
   return _robotPos;
 }
 
-void CrawlingRobot::MoveArm(double newArmAngle) {
+void Robot::MoveArm(double newArmAngle) {
   // assert((newArmAngle < _maxArmAngle) &&
   //        "Crawling Robot: Arm Raised too high. Careful!");
   // assert((newArmAngle > _minArmAngle) &&
@@ -102,7 +102,7 @@ void CrawlingRobot::MoveArm(double newArmAngle) {
   if (_positions.size() > 100) _positions.pop_front();
 }
 
-void CrawlingRobot::MoveHand(double newHandAngle) {
+void Robot::MoveHand(double newHandAngle) {
   // assert((newHandAngle < _maxHandAngle) &&
   //        "Crawling Robot: Hand Raised too high. Careful!");
   // assert((newHandAngle > _minHandAngle) &&
@@ -117,15 +117,15 @@ void CrawlingRobot::MoveHand(double newHandAngle) {
   if (_positions.size() > 100) _positions.pop_front();
 }
 
-std::pair<double, double> CrawlingRobot::GetMinAndMaxArmAngles() {
+std::pair<double, double> Robot::GetMinAndMaxArmAngles() {
   return std::pair<double, double>(_minArmAngle, _maxArmAngle);
 }
 
-std::pair<double, double> CrawlingRobot::GetMinAndMaxHandAngles() {
+std::pair<double, double> Robot::GetMinAndMaxHandAngles() {
   return std::pair<double, double>(_minHandAngle, _maxHandAngle);
 }
 
-double CrawlingRobot::GetRotationAngle() {
+double Robot::GetRotationAngle() {
   double armCos, armSin, handCos, handSin;
   std::tie(armCos, armSin) = GetCosAndSin(_armAngle);
   std::tie(handCos, handSin) = GetCosAndSin(_handAngle);
@@ -139,13 +139,13 @@ double CrawlingRobot::GetRotationAngle() {
   return 0.0;
 }
 
-std::pair<double, double> CrawlingRobot::GetCosAndSin(double angle) {
+std::pair<double, double> Robot::GetCosAndSin(double angle) {
   double cosine = std::cos(angle);
   double sine = std::sin(angle);
   return std::pair<double, double>(cosine, sine);
 }
 
-double CrawlingRobot::Displacement(double oldArmDegree, double oldHandDegree, double armDegree, double handDegree) {
+double Robot::Displacement(double oldArmDegree, double oldHandDegree, double armDegree, double handDegree) {
   double armCos, armSin, oldArmCos, oldArmSin;
   double handCos, handSin, oldHandCos, oldHandSin;
 

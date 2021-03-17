@@ -11,8 +11,8 @@
 #include <memory>
 #include <tuple>
 
-#include "crawlingRobot.h"
-#include "crawlingRobotEnvironment.h"
+#include "robot.h"
+#include "robotEnv.h"
 
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
@@ -24,7 +24,7 @@ class Graphics : public wxWindow {
  public:
   // Default constructors
   Graphics();
-  Graphics(wxPanel *parent, std::shared_ptr<CrawlingRobot> &robot, int width, int height);
+  Graphics(wxPanel *parent, std::shared_ptr<Robot> &robot, int width, int height);
   // Rule of five
   Graphics(const Graphics &) = delete;             // no-copying policy constructor (due to wxWidgets resource ownership)
   Graphics &operator=(const Graphics &) = delete;  // no-copying policy assigment operator constructor (due to wxWidgets ownership)
@@ -48,7 +48,7 @@ class Graphics : public wxWindow {
   wxTimer _timer;  // alternative to the while loop introduced by wxWidgets for consistent rendering
 
   // Crawling robot
-  std::shared_ptr<CrawlingRobot> _robot{nullptr};
+  std::shared_ptr<Robot> _robot{nullptr};
 
   DECLARE_EVENT_TABLE()
 };

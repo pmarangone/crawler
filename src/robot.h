@@ -1,5 +1,5 @@
-#ifndef CRAWLINGROBOT_H
-#define CRAWLINGROBOT_H
+#ifndef ROBOT_H
+#define ROBOT_H
 
 #define _USE_MATH_DEFINES
 
@@ -11,14 +11,14 @@
 #include <queue>     // deque
 #include <utility>   // pair
 
-class CrawlingRobot {
+class Robot {
  public:
-  CrawlingRobot();
-  CrawlingRobot(const CrawlingRobot &source);
-  CrawlingRobot &operator=(const CrawlingRobot &source);
-  CrawlingRobot(CrawlingRobot &&source);
-  CrawlingRobot &operator=(CrawlingRobot &&source);
-  ~CrawlingRobot();
+  Robot();
+  Robot(const Robot &source);
+  Robot &operator=(const Robot &source);
+  Robot(Robot &&source);
+  Robot &operator=(Robot &&source);
+  ~Robot();
 
   // Getters & setters for robot variables
   void SetAngles(double armAngle, double handAngle);
@@ -72,4 +72,4 @@ class CrawlingRobot {
   int _windowHeight{500};
 };
 
-#endif /* CRAWLINGROBOT_H */
+#endif /* ROBOT_H */

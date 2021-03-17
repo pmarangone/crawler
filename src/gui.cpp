@@ -40,7 +40,7 @@ MainFrame::MainFrame(const wxString &title,
   // InitEnvironment();    // instantiate robot environment
   InitLearner();
   InitAppLayout();  // fit all GUI elements into the main app window
-  std::cout << "MAIN THREAD –" << "Robot count: " << _robot.use_count() << ", " << _robot.get() << " and robotEnv count: " << _robotEnvironment.use_count() << ", " << _robotEnvironment.get() << "\n";
+  std::cout << "MAIN THREAD –" << "Robot count: " << _robot.use_count() << ", " << _robot.get() << " and robotEnv count: " << _robotEnv.use_count() << ", " << _robotEnv.get() << "\n";
 
 
   // Runs episodes (agent)
@@ -187,8 +187,8 @@ void MainFrame::InitPanelGraphics() {
 };
 
 void MainFrame::InitRobot() {
-  _robot = std::make_shared<CrawlingRobot>();
-  _robotEnvironment = std::make_shared<CrawlingRobotEnvironment>(_robot);
+  _robot = std::make_shared<Robot>();
+  _robotEnv = std::make_shared<RobotEnvironment>(_robot);
 }
 
 void MainFrame::InitGraphics(wxPanel *parent) {
@@ -206,7 +206,7 @@ void MainFrame::InitAppLayout() {
 
 void MainFrame::InitLearner() {
   _learner = std::make_unique<QLearningAgent>(
-      [u = _robotEnvironment](std::pair<int, int> state) {
+      [u = _robotEnv](std::pair<int, int> state) {
         return u->GetPossibleActions(state);
       });
   _learner->SetLearningRate(_learningRate);
@@ -328,13 +328,13 @@ void MainFrame::OnSpinCtrl(wxSpinDoubleEvent &event) {
 void MainFrame::Step() {
   _stepCount += 1;
 
-  std::pair<int, int> state = _robotEnvironment->GetCurrentState();
-  std::vector<std::string> actions = _robotEnvironment->GetPossibleActions(state);
+  std::pair<int, int> state = _robotEnv->GetCurrentState();
+  std::vector<std::string> actions = _robotEnv->GetPossibleActions(state);
 
   if (actions.empty()) {
-    _robotEnvironment->Reset();
-    state = _robotEnvironment->GetCurrentState();
-    actions = _robotEnvironment->GetPossibleActions(state);
+    _robotEnv->Reset();
+    state = _robotEnv->GetCurrentState();
+    actions = _robotEnv->GetPossibleActions(state);
     std::cout << "Reset!\n";
   }
 
@@ -344,7 +344,7 @@ void MainFrame::Step() {
   std::pair<int, int> nextState;
   double reward;
 
-  std::tie(nextState, reward) = _robotEnvironment->DoAction(action);
+  std::tie(nextState, reward) = _robotEnv->DoAction(action);
   _learner->ObserveTransition(state, action, nextState, reward);
 }
 
@@ -358,7 +358,7 @@ int cnt = 0;
 void MainFrame::Run() {
   std::cout << "Second thread ID: " << std::this_thread::get_id() << std::endl;
 
-  std::cout << "SECOND THREAD –" << "Robot count: " << _robot.use_count() << " and robotEnv count: " << _robotEnvironment.use_count() << "\n";
+  std::cout << "SECOND THREAD –" << "Robot count: " << _robot.use_count() << " and robotEnv count: " << _robotEnv.use_count() << "\n";
 
   _learner->StartEpisode();
   while (true) {
